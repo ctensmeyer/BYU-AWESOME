@@ -1,0 +1,2 @@
+# BYU-AWESOME
+ICDAR 2017 Competitions
