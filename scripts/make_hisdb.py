@@ -2,6 +2,10 @@
 import os
 import sys
 
+if len(sys.argv) < 5:
+	print "python make_hisdb.py out_dir prefix dataset [net_dirs...]"
+	exit()
+
 out_dir = sys.argv[1]
 try:
 	os.makedirs(out_dir)
@@ -23,7 +27,7 @@ for idx, f in enumerate(sys.argv[4:]):
 		out.write("#SBATCH --gres=gpu:1\n")
 		out.write("#SBATCH --mem-per-cpu=2666MB\n")
 		out.write("#SBATCH -J \"%s-%s-%d\"\n" % (dataset, prefix, idx))
-		out.write("#SBATCH --gid=fslg_nnml\n")
+		out.write("#SBATCH --gid=fslg_icdar\n")
 		out.write("#SBATCH --mail-user=christopher.tensmeyer@gmail.com\n")
 		#out.write("#SBATCH --mail-type=BEGIN\n")
 		out.write("#SBATCH --mail-type=END\n")
@@ -34,8 +38,8 @@ for idx, f in enumerate(sys.argv[4:]):
 		out.write("export OMP_NUM_THREADS=$SLURM_CPUS_ON_NODE\n")
 		out.write("echo \"Cuda devices: $CUDA_VISIBLE_DEVICES\"\n\n")
 
-		out.write("script=/fslhome/waldol1/fsl_groups/fslg_icdar/compute/experiments/binarize/jobs/binary.sh\n\n")
+		out.write("script=/fslhome/waldol1/fsl_groups/fslg_icdar/compute/experiments/hisdb/jobs/hisdb.sh\n\n")
 		out.write("dir=%s\n\n" % f)
 		out.write("cp $script $dir\n")
-		out.write("$dir/binary.sh 0 resume\n")
+		out.write("$dir/hisdb.sh 0 resume\n")
 
