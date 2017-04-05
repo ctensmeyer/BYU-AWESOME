@@ -41,8 +41,8 @@ def	howeFeaturesExperiments(ds):
 	tags = TAG_SETS["original"] + ["howe"]
 
 	name = "howe"
-	print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':4})
-	createNetwork.createBinarizeExperiment(ds, tags, group, name, num_experiments=4, depth=4, kernel_size=7, wfm_loss=True)
+	print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':4})
+	createNetwork.createHisDbExperiment(ds, tags, group, name, num_experiments=4, depth=4, kernel_size=7, wfm_loss=True)
 
 def oneConvExperiments(ds):
 	group = "conv1s"
@@ -50,8 +50,8 @@ def oneConvExperiments(ds):
 
 	for one_convs in [0, 1, 2]:
 		name = "conv1_%d" % one_convs
-		print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3})
-		createNetwork.createBinarizeExperiment(ds, tags, group, name, num_experiments=3, depth=5, kernel_size=7, wfm_loss=True, one_convs=one_convs)
+		print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3})
+		createNetwork.createHisDbExperiment(ds, tags, group, name, num_experiments=3, depth=5, kernel_size=7, wfm_loss=True, one_convs=one_convs)
 
 
 def lrnExperiments(ds):
@@ -60,8 +60,8 @@ def lrnExperiments(ds):
 
 	for do_lrn in [0, 1, 2, 3, 4]:
 		name = "lrn_%s" % do_lrn
-		print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3})
-		createNetwork.createBinarizeExperiment(ds, tags, group, name, num_experiments=3, depth=5, kernel_size=7, wfm_loss=True, lrn=do_lrn)
+		print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3})
+		createNetwork.createHisDbExperiment(ds, tags, group, name, num_experiments=3, depth=5, kernel_size=7, wfm_loss=True, lrn=do_lrn)
 
 
 def zeroExperiments(ds):
@@ -70,8 +70,8 @@ def zeroExperiments(ds):
 
 	for zero in [0, 3, 6, 9, 12, 15]:
 		name = "zero_%s" % zero
-		print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3})
-		createNetwork.createBinarizeExperiment(ds, tags, group, name, num_experiments=3, depth=5, kernel_size=7, wfm_loss=True, zero_border=zero)
+		print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3})
+		createNetwork.createHisDbExperiment(ds, tags, group, name, num_experiments=3, depth=5, kernel_size=7, wfm_loss=True, zero_border=zero)
 
 
 def poolExperiments(ds):
@@ -80,8 +80,8 @@ def poolExperiments(ds):
 
 	for pool in [0, 1, 2, 3, 4]:
 		name = "pool_%s" % pool
-		print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3})
-		createNetwork.createBinarizeExperiment(ds, tags, group, name, num_experiments=3, depth=5, kernel_size=7, wfm_loss=True, pool=pool)
+		print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3})
+		createNetwork.createHisDbExperiment(ds, tags, group, name, num_experiments=3, depth=5, kernel_size=7, wfm_loss=True, pool=pool)
 		
 
 def batchSizeExperiments(ds):
@@ -90,8 +90,8 @@ def batchSizeExperiments(ds):
 
 	for batch_size in [1, 2, 3, 4, 6, 8, 10]:
 		name = "batch_%s" % batch_size
-		print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':5})
-		createNetwork.createBinarizeExperiment(ds, tags, group, name, num_experiments=5, depth=7, kernel_size=9, 
+		print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':5})
+		createNetwork.createHisDbExperiment(ds, tags, group, name, num_experiments=5, depth=7, kernel_size=9, 
 			num_filters=64, wfm_loss=True, train_batch_size=batch_size)
 
 
@@ -101,8 +101,8 @@ def lrExperiments(ds):
 
 	for lr in [0.0075, 0.005, 0.0025, 0.001, 0.0005, 0.00001]:
 		name = "lr_%s" % lr
-		print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':5})
-		createNetwork.createBinarizeExperiment(ds, tags, group, name, num_experiments=5, depth=7, kernel_size=9, 
+		print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':5})
+		createNetwork.createHisDbExperiment(ds, tags, group, name, num_experiments=5, depth=7, kernel_size=9, 
 			num_filters=64, wfm_loss=True, train_batch_size=5, lr=lr)
 	
 
@@ -112,9 +112,9 @@ def augmentExperiments(ds):
 
 	for augmentation in ['rotate', 'shear', 'perspective', 'color_jitter', 'elastic', 'blur', 'noise']:
 		name = "augment_%s" % augmentation
-		print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':5, augmentation: True})
+		print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':5, augmentation: True})
 		kwargs = {augmentation: True}
-		createNetwork.createBinarizeExperiment(ds, tags, group, name, num_experiments=5, depth=7, kernel_size=9, 
+		createNetwork.createHisDbExperiment(ds, tags, group, name, num_experiments=5, depth=7, kernel_size=9, 
 			num_filters=64, wfm_loss=True, **kwargs)
 
 
@@ -124,12 +124,12 @@ def augment2Experiments(ds):
 
 	for augmentation in ['rotate', 'shear', 'color_jitter', 'elastic', 'blur', 'noise']:
 		name = "augment_%s" % augmentation
-		print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':10, augmentation: True})
+		print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':10, augmentation: True})
 		kwargs = {augmentation: True}
-		createNetwork.createBinarizeExperiment(ds, tags, group, name, train_batch_size=5, num_experiments=10, depth=7, kernel_size=9, 
+		createNetwork.createHisDbExperiment(ds, tags, group, name, train_batch_size=5, num_experiments=10, depth=7, kernel_size=9, 
 			num_filters=64, wfm_loss=True, **kwargs)
 
-	createNetwork.createBinarizeExperiment(ds, tags, group, "baseline", train_batch_size=5, num_experiments=10, depth=7, kernel_size=9, 
+	createNetwork.createHisDbExperiment(ds, tags, group, "baseline", train_batch_size=5, num_experiments=10, depth=7, kernel_size=9, 
 		num_filters=64, wfm_loss=True)
 
 
@@ -139,18 +139,18 @@ def augment3Experiments(ds):
 
 	for augmentation in ['color_jitter', 'blur']:
 		name = "augment_%s" % augmentation
-		print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':10, augmentation: True})
+		print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':10, augmentation: True})
 		kwargs = {augmentation: True}
-		createNetwork.createBinarizeExperiment(ds, tags, group, name, train_batch_size=5, num_experiments=10, depth=7, kernel_size=9, 
+		createNetwork.createHisDbExperiment(ds, tags, group, name, train_batch_size=5, num_experiments=10, depth=7, kernel_size=9, 
 			num_filters=48, num_scales=4, wfm_loss=True, **kwargs)
 
 	name = "augment_both"
-	print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':10, 'blur': True, 'color_jitter': True})
+	print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':10, 'blur': True, 'color_jitter': True})
 	kwargs = {augmentation: True}
-	createNetwork.createBinarizeExperiment(ds, tags, group, name, train_batch_size=5, num_experiments=10, depth=7, kernel_size=9, 
+	createNetwork.createHisDbExperiment(ds, tags, group, name, train_batch_size=5, num_experiments=10, depth=7, kernel_size=9, 
 		num_filters=48, num_scales=4, wfm_loss=True, color_jitter=True, blur=True)
 
-	createNetwork.createBinarizeExperiment(ds, tags, group, "baseline", train_batch_size=5, num_experiments=10, depth=7, kernel_size=9, 
+	createNetwork.createHisDbExperiment(ds, tags, group, "baseline", train_batch_size=5, num_experiments=10, depth=7, kernel_size=9, 
 		num_filters=48, num_scales=4, wfm_loss=True)
 
 
@@ -161,8 +161,8 @@ def loss2Experiments(ds):
 	# Uniform F-measure
 	for loss_weight in [0, 0.1, 0.25, 0.5, 0.75, 0.9, 1, 1.5, 2]:
 		name = "loss_uniform_fmeasure_%s" % loss_weight
-		print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3, "wfm_loss": True, 'uniform_weights': True})
-		createNetwork.createBinarizeExperiment(ds, tags, group, name, train_batch_size=5, num_experiments=3, depth=7, kernel_size=9, wfm_loss=True, num_filters=64, uniform_weights=True, pfm_loss_weight=loss_weight)
+		print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3, "wfm_loss": True, 'uniform_weights': True})
+		createNetwork.createHisDbExperiment(ds, tags, group, name, train_batch_size=5, num_experiments=3, depth=7, kernel_size=9, wfm_loss=True, num_filters=64, uniform_weights=True, pfm_loss_weight=loss_weight)
 
 
 def loss3Experiments(ds):
@@ -172,8 +172,8 @@ def loss3Experiments(ds):
 	# different recall weights
 	for recall_tag in ['dilated', 'modified']:
 		name = "loss_psuedo_fmeasure_%s" % recall_tag
-		print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3, "wfm_loss": True})
-		createNetwork.createBinarizeExperiment(ds, tags, group, name, train_batch_size=5, num_experiments=3, depth=7, kernel_size=9, wfm_loss=True, num_filters=64, recall_weights=recall_tag)
+		print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3, "wfm_loss": True})
+		createNetwork.createHisDbExperiment(ds, tags, group, name, train_batch_size=5, num_experiments=3, depth=7, kernel_size=9, wfm_loss=True, num_filters=64, recall_weights=recall_tag)
 
 def loss4Experiments(ds):
 	group = "loss4"
@@ -182,8 +182,8 @@ def loss4Experiments(ds):
 	# different recall weights
 	for margin in [0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.45, 0.5]:
 		name = "loss_margin_%f" % margin
-		print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3, "wfm_loss": True})
-		createNetwork.createBinarizeExperiment(ds, tags, group, name, train_batch_size=5, num_experiments=3, depth=7, kernel_size=9, wfm_loss=True, num_filters=64, margin=margin)
+		print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3, "wfm_loss": True})
+		createNetwork.createHisDbExperiment(ds, tags, group, name, train_batch_size=5, num_experiments=3, depth=7, kernel_size=9, wfm_loss=True, num_filters=64, margin=margin)
 
 
 def lossExperiments(ds):
@@ -192,24 +192,24 @@ def lossExperiments(ds):
 
 	# Pseudo F-measure
 	name = "loss_psuedo_fmeasure"
-	print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3, 'wfm_loss': True})
-	createNetwork.createBinarizeExperiment(ds, tags, group, name, train_batch_size=5, num_experiments=3, depth=7, kernel_size=9, num_filters=64, wfm_loss=True)
+	print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3, 'wfm_loss': True})
+	createNetwork.createHisDbExperiment(ds, tags, group, name, train_batch_size=5, num_experiments=3, depth=7, kernel_size=9, num_filters=64, wfm_loss=True)
 
 	# Modified Pseudo F-measure
 	for recall_shift in [0.1, 0.25, 0.5, 1]:
 		name = "loss_modified_psuedo_fmeasure_%f" % recall_shift
-		print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3, 'wfm_loss': True})
-		createNetwork.createBinarizeExperiment(ds, tags, group, name, train_batch_size=5, num_experiments=3, depth=7, kernel_size=9, num_filters=64, wfm_loss=True, recall_shift=recall_shift)
+		print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3, 'wfm_loss': True})
+		createNetwork.createHisDbExperiment(ds, tags, group, name, train_batch_size=5, num_experiments=3, depth=7, kernel_size=9, num_filters=64, wfm_loss=True, recall_shift=recall_shift)
 
 	# Uniform F-measure
 	name = "loss_uniform_fmeasure"
-	print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3, "wfm_loss": True, 'uniform_weights': True})
-	createNetwork.createBinarizeExperiment(ds, tags, group, name, train_batch_size=5, num_experiments=3, depth=7, kernel_size=9, num_filters=64, wfm_loss=True, uniform_weights=True)
+	print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3, "wfm_loss": True, 'uniform_weights': True})
+	createNetwork.createHisDbExperiment(ds, tags, group, name, train_batch_size=5, num_experiments=3, depth=7, kernel_size=9, num_filters=64, wfm_loss=True, uniform_weights=True)
 
 	# Sigmoid Cross Entropy
 	name = "loss_cross_entropy"
-	print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3, "wfm_loss": False})
-	createNetwork.createBinarizeExperiment(ds, tags, group, name, train_batch_size=5, num_experiments=3, depth=7, kernel_size=9, num_filters=64, wfm_loss=False)
+	print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3, "wfm_loss": False})
+	createNetwork.createHisDbExperiment(ds, tags, group, name, train_batch_size=5, num_experiments=3, depth=7, kernel_size=9, num_filters=64, wfm_loss=False)
 
 
 def depthExperiments(ds):
@@ -218,22 +218,23 @@ def depthExperiments(ds):
 
 	for depth in [0, 1, 2, 3, 4, 5]:
 		name = "depth_%d" % depth
-		print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3, 'depth':depth})
-		createNetwork.createBinarizeExperiment(ds, tags, group, name, num_experiments=3, kernel_size=5, depth=depth, wfm_loss=True)
+		print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3, 'depth':depth})
+		createNetwork.createHisDbExperiment(ds, tags, group, name, num_experiments=3, kernel_size=5, depth=depth, wfm_loss=True)
 
 
 def arch2Experiments(ds):
 	group = "arch2"
-	tags = TAG_SETS["color2"]
+	tags = TAG_SETS["gray"]
 
-	for depth in [3, 5, 7]:
-		for num_filters in [36]:
-			for kernel_size in [7, 9]:
-				for scale in [1, 3, 4]:
+	for depth in [7,9,11]:
+		for num_filters in [24]:
+			for kernel_size in [7, 9, 11, 13]:
+				for scale in [4, 5, 6]:
 					name = "arch_%d_%d_%d_%d" % (depth, num_filters, kernel_size, scale)
-					print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3, 'depth':depth})
-					createNetwork.createBinarizeExperiment(ds, tags, group, name, num_experiments=3, kernel_size=kernel_size, 
-						depth=depth, num_filters=num_filters, wfm_loss=True, num_scales=scale, train_batch_size=5)
+					print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3, 'depth':depth})
+					createNetwork.createHisDbExperiment(ds, tags, group, name, num_experiments=3, kernel_size=kernel_size, 
+						depth=depth, num_filters=num_filters, wfm_loss=True, num_scales=scale, train_batch_size=5, input_size=256,
+						baseline_width=7)
 
 
 def arch3Experiments(ds):
@@ -244,8 +245,8 @@ def arch3Experiments(ds):
 	for num_filters in [48, 64, 80]:
 		for kernel_size in [9, 11, 13]:
 			name = "arch_%d_%d_%d" % (depth, num_filters, kernel_size)
-			print "createBinarizeExperiment(%r, %r, %r, %r)" % (ds, tags, group, name)
-			createNetwork.createBinarizeExperiment(ds, tags, group, name, num_experiments=5, kernel_size=kernel_size, 
+			print "createHisDbExperiment(%r, %r, %r, %r)" % (ds, tags, group, name)
+			createNetwork.createHisDbExperiment(ds, tags, group, name, num_experiments=5, kernel_size=kernel_size, 
 				depth=depth, num_filters=num_filters, wfm_loss=True, train_batch_size=5)
 
 
@@ -262,8 +263,8 @@ def archExperiments(ds):
 							continue
 						for baseline_width in [1,3,5,7]:
 							name = "arch_%s_%d_%d_%d_%d_%d" % (tags[0], depth, num_filters, kernel_size, scale, baseline_width)
-							print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':1, 'depth':depth})
-							createNetwork.createBinarizeExperiment(ds, tags, group, name, num_experiments=1, kernel_size=kernel_size, 
+							print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':1, 'depth':depth})
+							createNetwork.createHisDbExperiment(ds, tags, group, name, num_experiments=1, kernel_size=kernel_size, 
 								depth=depth, num_filters=num_filters, wfm_loss=True, num_scales=scale, train_batch_size=3, baseline_width=baseline_width)
 
 def arch512Experiments(ds):
@@ -279,9 +280,10 @@ def arch512Experiments(ds):
 							continue
 						for baseline_width in [1,3,5,7]:
 							name = "arch_%s_%d_%d_%d_%d_%d" % (tags[0], depth, num_filters, kernel_size, scale, baseline_width)
-							print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':1, 'depth':depth})
-							createNetwork.createBinarizeExperiment(ds, tags, group, name, input_size=512, num_experiments=1, kernel_size=kernel_size, 
-								depth=depth, num_filters=num_filters, wfm_loss=True, num_scales=scale, train_batch_size=3, baseline_width=baseline_width)
+							print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':1, 'depth':depth})
+							createNetwork.createHisDbExperiment(ds, tags, group, name, input_size=512, num_experiments=1, 
+								kernel_size=kernel_size, depth=depth, num_filters=num_filters, wfm_loss=True, num_scales=scale, 
+								train_batch_size=3, baseline_width=baseline_width)
 
 def finalExperiments(ds):
 	group = "final"
@@ -290,8 +292,8 @@ def finalExperiments(ds):
 					'train_batch_size': 10}
 
 	name = "final"
-	print "createBinarizeExperiment(%r, %r, %r, %r)" % (ds, tags, group, name)
-	createNetwork.createBinarizeExperiment(ds, tags, group, name, wfm_loss=True, **final_params) 
+	print "createHisDbExperiment(%r, %r, %r, %r)" % (ds, tags, group, name)
+	createNetwork.createHisDbExperiment(ds, tags, group, name, wfm_loss=True, **final_params) 
 
 
 def residualExperiments(ds):
@@ -302,8 +304,8 @@ def residualExperiments(ds):
 		for num_filters in [24, 48, 64, 80]:
 			for kernel_size in [7, 9]:
 				name = "arch_%d_%d_%d" % (depth, num_filters, kernel_size)
-				print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3, 'depth':depth})
-				createNetwork.createBinarizeExperiment(ds, tags, group, name, num_experiments=3, kernel_size=kernel_size, 
+				print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3, 'depth':depth})
+				createNetwork.createHisDbExperiment(ds, tags, group, name, num_experiments=3, kernel_size=kernel_size, 
 					depth=depth, num_filters=num_filters, wfm_loss=True, train_batch_size=5, residual=True)
 
 def denseExperiments(ds):
@@ -314,8 +316,8 @@ def denseExperiments(ds):
 		for num_filters in [4, 8, 12, 16, 20]:
 			for kernel_size in [5, 7, 9]:
 				name = "arch_%d_%d_%d" % (depth, num_filters, kernel_size)
-				print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3, 'depth':depth})
-				createNetwork.createBinarizeExperiment(ds, tags, group, name, num_experiments=3, kernel_size=kernel_size, 
+				print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3, 'depth':depth})
+				createNetwork.createHisDbExperiment(ds, tags, group, name, num_experiments=3, kernel_size=kernel_size, 
 					depth=depth, num_filters=num_filters, wfm_loss=True, train_batch_size=5, densenet=True)
 
 
@@ -326,8 +328,8 @@ def widthExperiments(ds):
 
 	for width in [6, 12, 24, 36, 48, 64, 96, 128]:
 		name = "width_%d" % width
-		print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3, 'width':width})
-		createNetwork.createBinarizeExperiment(ds, tags, group, name, num_experiments=3, depth=5, kernel_size=7, wfm_loss=True, num_filters=width)
+		print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3, 'width':width})
+		createNetwork.createHisDbExperiment(ds, tags, group, name, num_experiments=3, depth=5, kernel_size=7, wfm_loss=True, num_filters=width)
 
 
 def kernelSizeExperiments(ds):
@@ -337,8 +339,8 @@ def kernelSizeExperiments(ds):
 
 	for size in [3, 5, 7, 9, 11]:
 		name = "kernel_size_%d" % size
-		print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3, 'kernel_size':size})
-		createNetwork.createBinarizeExperiment(ds, tags, group, name, num_experiments=3, kernel_size=size, depth=5, wfm_loss=True)
+		print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3, 'kernel_size':size})
+		createNetwork.createHisDbExperiment(ds, tags, group, name, num_experiments=3, kernel_size=size, depth=5, wfm_loss=True)
 
 
 def scaleExperiments(ds):
@@ -349,8 +351,8 @@ def scaleExperiments(ds):
 		for _global in [0, 2]:
 			for kernel_size in [3, 5, 7]:
 				name = "scale_%d_kernel_%d_global_%d" % (scale, kernel_size,_global)
-				print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3, 'scale':scale, 'global_features':_global})
-				createNetwork.createBinarizeExperiment(ds, tags, group, name, num_experiments=3, depth=7, wfm_loss=True, 
+				print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3, 'scale':scale, 'global_features':_global})
+				createNetwork.createHisDbExperiment(ds, tags, group, name, num_experiments=3, depth=7, wfm_loss=True, 
 					kernel_size=kernel_size, num_filters=64, train_batch_size=5, num_scales=scale, global_features=_global)
 
 
@@ -362,8 +364,8 @@ def scale2Experiments(ds):
 		for _global in [0, 2]:
 			for kernel_size in [7, 9]:
 				name = "scale_%d_kernel_%d_global_%d" % (scale, kernel_size,_global)
-				print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':10, 'scale':scale, 'global_features':_global})
-				createNetwork.createBinarizeExperiment(ds, tags, group, name, num_experiments=10, depth=7, wfm_loss=True, 
+				print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':10, 'scale':scale, 'global_features':_global})
+				createNetwork.createHisDbExperiment(ds, tags, group, name, num_experiments=10, depth=7, wfm_loss=True, 
 					kernel_size=kernel_size, num_filters=64, train_batch_size=5, num_scales=scale, global_features=_global)
 
 
@@ -373,8 +375,8 @@ def scale3Experiments(ds):
 
 	for num_filters in [24, 36, 48, 64, 80, 96]:
 		name = "scale_%d" % num_filters
-		print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':10})
-		createNetwork.createBinarizeExperiment(ds, tags, group, name, num_experiments=10, depth=7, wfm_loss=True, 
+		print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':10})
+		createNetwork.createHisDbExperiment(ds, tags, group, name, num_experiments=10, depth=7, wfm_loss=True, 
 			kernel_size=9, num_filters=num_filters, train_batch_size=5, num_scales=4)
 
 
@@ -384,8 +386,8 @@ def scale4Experiments(ds):
 
 	for kernel_size in [9, 11, 13]:
 		name = "scale_%d" % kernel_size
-		print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':10})
-		createNetwork.createBinarizeExperiment(ds, tags, group, name, num_experiments=10, depth=7, wfm_loss=True, 
+		print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':10})
+		createNetwork.createHisDbExperiment(ds, tags, group, name, num_experiments=10, depth=7, wfm_loss=True, 
 			kernel_size=kernel_size, num_filters=48, train_batch_size=5, num_scales=4, color_jitter=True)
 
 
@@ -393,20 +395,20 @@ def features2Experiments(ds):
 	group = "features2"
 	tags = TAG_SETS["original"] + [('canny/75', 'canny_75_200'), ('canny/100', 'canny_100_200'), ('canny/75', 'canny_75_175')]
 	name = "features_canny"
-	print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':5})
-	createNetwork.createBinarizeExperiment(ds, tags, group, name, num_experiments=5, train_batch_size=5, depth=7, kernel_size=9, num_filters=64, num_scales=4, wfm_loss=True)
+	print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':5})
+	createNetwork.createHisDbExperiment(ds, tags, group, name, num_experiments=5, train_batch_size=5, depth=7, kernel_size=9, num_filters=64, num_scales=4, wfm_loss=True)
 
 def features3Experiments(ds):
 	group = "features3"
 	tags = TAG_SETS["original"] + TAG_SETS["relative_darkness2"]
 	name = "features_rd_3"
-	print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':5})
-	createNetwork.createBinarizeExperiment(ds, tags, group, name, num_experiments=5, train_batch_size=5, depth=7, kernel_size=9, num_filters=64, num_scales=4, wfm_loss=True)
+	print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':5})
+	createNetwork.createHisDbExperiment(ds, tags, group, name, num_experiments=5, train_batch_size=5, depth=7, kernel_size=9, num_filters=64, num_scales=4, wfm_loss=True)
 
 	tags = TAG_SETS["original"] + TAG_SETS["color"]
 	name = "features_gray_color"
-	print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':5})
-	createNetwork.createBinarizeExperiment(ds, tags, group, name, num_experiments=5, train_batch_size=5, depth=7, kernel_size=9, num_filters=64, num_scales=4, wfm_loss=True)
+	print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':5})
+	createNetwork.createHisDbExperiment(ds, tags, group, name, num_experiments=5, train_batch_size=5, depth=7, kernel_size=9, num_filters=64, num_scales=4, wfm_loss=True)
 
 
 def featuresExperiments(ds):
@@ -420,8 +422,8 @@ def featuresExperiments(ds):
 		else:
 			name = "features_%s" % additional_tag[1]
 		tags = base_tags + [additional_tag]
-		print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':5})
-		createNetwork.createBinarizeExperiment(ds, tags, group, name, num_experiments=5, train_batch_size=5, depth=7, kernel_size=9, num_filters=64, num_scales=4, wfm_loss=True)
+		print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':5})
+		createNetwork.createHisDbExperiment(ds, tags, group, name, num_experiments=5, train_batch_size=5, depth=7, kernel_size=9, num_filters=64, num_scales=4, wfm_loss=True)
 
 
 def channel2Experiments(ds):
@@ -434,8 +436,8 @@ def channel2Experiments(ds):
 		tags += [ ('relative_darkness/%d' % size,  'relative_darkness_%d_%d' % (size, thresh)) for thresh in [10, 20]]
 		tags += base_tags
 		name = "channel_narrow_%d" % size
-		print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3})
-		createNetwork.createBinarizeExperiment(ds, tags, group, name, num_experiments=3, depth=5, kernel_size=7, wfm_loss=True)
+		print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3})
+		createNetwork.createHisDbExperiment(ds, tags, group, name, num_experiments=3, depth=5, kernel_size=7, wfm_loss=True)
 
 	# combined narrow windows with wide_windows
 	for narrow_size, wide_size  in zip([3, 5, 7, 9], [9, 19, 39, 79]):
@@ -444,13 +446,13 @@ def channel2Experiments(ds):
 		tags += [(feature, '%s_%d' % (feature, wide_size)) for feature in ['mean', 'median']]
 		tags += base_tags
 		name = "channel_narrow_wide_%d" % narrow_size
-		print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3})
-		createNetwork.createBinarizeExperiment(ds, tags, group, name, num_experiments=3, depth=5, kernel_size=7, wfm_loss=True)
+		print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3})
+		createNetwork.createHisDbExperiment(ds, tags, group, name, num_experiments=3, depth=5, kernel_size=7, wfm_loss=True)
 
 	for name, tags in TAG_SETS.items():
 		name = "channel_%s_all" % name
-		print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3})
-		createNetwork.createBinarizeExperiment(ds, tags, group, name, num_experiments=3, depth=5, kernel_size=7, wfm_loss=True)
+		print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3})
+		createNetwork.createHisDbExperiment(ds, tags, group, name, num_experiments=3, depth=5, kernel_size=7, wfm_loss=True)
 
 
 def channel3Experiments(ds):
@@ -468,8 +470,8 @@ def channel3Experiments(ds):
 
 	# combined narrow windows
 	name = "channel_custom"
-	print "createBinarizeExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3})
-	createNetwork.createBinarizeExperiment(ds, tags, group, name, num_experiments=3, depth=5, kernel_size=7, wfm_loss=True)
+	print "createHisDbExperiment(%r, %r, %r, %r, %r)" % (ds, tags, group, name, {'num_experiments':3})
+	createNetwork.createHisDbExperiment(ds, tags, group, name, num_experiments=3, depth=5, kernel_size=7, wfm_loss=True)
 
 
 if __name__ == "__main__":
@@ -501,9 +503,9 @@ if __name__ == "__main__":
 		#poolExperiments(ds)
 		#batchSizeExperiments(ds)
 		#lrExperiments(ds)
-		arch512Experiments(ds)
+		#arch512Experiments(ds)
 		#finalExperiments(ds)
-		#arch2Experiments(ds)
+		arch2Experiments(ds)
 		#arch3Experiments(ds)
 		#residualExperiments(ds)
 		#denseExperiments(ds)
