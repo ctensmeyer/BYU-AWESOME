@@ -46,6 +46,7 @@ if __name__ == "__main__":
     bl_angle=[]
     #line_count=0
     line_numSegs=[]
+    region_numLines=[]
     page_numSpacedSegs=[]
     #page_count=0
     page_blCount=[]
@@ -67,10 +68,13 @@ if __name__ == "__main__":
             page_numSpacedSegs_sum=0
             lineBoundMin=-1
             lineBoundMax=-1
+            linesInRegion=0
             for region in xml_data[0]['regions']:
                 for i, line in enumerate(xml_data[0]['lines']):
                     if line['region_id'] != region['id']:
                         continue
+                    #print(line['region_id'])
+                    linesInRegion+=1
                     #line_mask = line_extraction.extract_baseline(img, line['baseline'])
                     pts = line['baseline']
                     new_pts = []
@@ -96,11 +100,17 @@ if __name__ == "__main__":
                     line_numSegs.append(line_numSegs_sum)
                     
                         
-                    if (lineBoundMin<maxY and lineBoundMin>minY) or (lineBoundMax>minY and lineBoundMax<maxY):
+                    if (lineBoundMin<maxY and lineBoundMin>minY) or (lineBoundMax>minY and lineBoundMax<maxY) or \
+                        (lineBoundMin<minY and lineBoundMax>maxY) or (lineBoundMin>minY and lineBoundMax<maxY):
                         #intesection, probably same line
                         page_numSpacedSegs_sum+=1
-                        lineBoundMin = min(lineBoundMin,minY)
-                        lineBoundMax = max(lineBoundMax,maxY)
+                        #lineBoundMin = min(lineBoundMin,minY)
+                        #lineBoundMax = max(lineBoundMax,maxY)
+                        lineBoundMin=minY
+                        lineBoundMax=maxY
+                        #print(pts[0],pts[1],lineBoundMin,lineBoundMax)
+                        #print(filename)
+
                     else:
                         averageSpacing+=max(lineBoundMin-maxY, minY-lineBoundMax)
                         spacingCount+=1
@@ -108,6 +118,8 @@ if __name__ == "__main__":
                         lineBoundMax=maxY
                         #line_count+=1
                         pageLineCount+=1
+
+                region_numLines.append(linesInRegion)
 
             page_blVertSpacing.append(averageSpacing/spacingCount)
             page_blCount.append(pageLineCount)
@@ -130,6 +142,9 @@ if __name__ == "__main__":
 
     mean_line_numSegs, std_line_numSegs = meanAndStd(line_numSegs)
     print('segments per line (xml defined), mean: '+str(mean_line_numSegs)+',\tstd: '+str(std_line_numSegs))    
+
+    mean_region_numLines, std_region_numLines = meanAndStd(region_numLines)
+    print('lines per region (xml defined), mean: '+str(mean_region_numLines)+',\tstd: '+str(std_region_numLines))    
     
     mean_page_numSpacedSegs, std_page_numSpacedSegs = meanAndStd(page_numSpacedSegs)
     print('broken lines per page (est), mean: '+str(mean_page_numSpacedSegs)+',\tstd: '+str(std_page_numSpacedSegs))    
