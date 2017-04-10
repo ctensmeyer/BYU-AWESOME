@@ -4,34 +4,50 @@ import cv2
 import line_extraction
 import numpy as np
 import os
+import traceback
 # import matplotlib.pyplot as plt
+from collections import defaultdict
 
 
 def handle_single_image(xml_path, img_path, output_directory):
 
-    xml_data = parse_PAGE.readXMLFile(xml_path)
+
+    with open(xml_path) as f:
+        num_lines = sum(1 for line in f.readlines() if len(line.strip())>0)
+
     img = cv2.imread(img_path)
-
-    if len(xml_data) > 1:
-        raise Exception("Not handling this correctly")
-
     region_data = np.zeros(img.shape[:2], np.uint8)
 
-    for region in xml_data[0]['regions']:
+    if num_lines > 0:
 
-        region_mask = line_extraction.extract_region_mask(img, region['bounding_poly'])
+        xml_data = parse_PAGE.readXMLFile(xml_path)
 
-        for i, line in enumerate(xml_data[0]['lines']):
-            if line['region_id'] != region['id']:
-                continue
-            line_mask = line_extraction.extract_baseline(img, line['baseline'])
+        if len(xml_data) > 1:
+            raise Exception("Not handling this correctly")
 
-            region_data[line_mask != 0] = 255
+        for region in xml_data[0]['regions']:
+
+            region_mask = line_extraction.extract_region_mask(img, region['bounding_poly'])
+
+            for i, line in enumerate(xml_data[0]['lines']):
+                if line['region_id'] != region['id']:
+                    continue
+
+                if 'baseline' not in line:
+                    print "Warning: Missing baseline {}".format(xml_path)
+                    print line
+                    continue
+
+                line_mask = line_extraction.extract_baseline(img, line['baseline'])
+
+                region_data[line_mask != 0] = 255
+
+    else:
+        print "WARNING: {} has no lines".format(xml_path)
 
     basename = os.path.basename(xml_path)
     output_name = basename[:-len(".xml")]
     output_name += ".png"
-
     output_file = os.path.join(output_directory, output_name)
     if not os.path.exists(os.path.dirname(output_file)):
         try:
@@ -41,12 +57,28 @@ def handle_single_image(xml_path, img_path, output_directory):
 
     cv2.imwrite(output_file, region_data)
 
-if __name__ == "__main__":
-    xml_directory = sys.argv[1]
-    img_directory = sys.argv[2]
-    output_directory = sys.argv[3]
+def find_best_xml(list_of_files, filename):
 
-    xml_filename_to_fullpath = {}
+    if len(list_of_files) <= 1:
+        return list_of_files
+
+    print "Selecting multiple options from:"
+
+    line_cnts = []
+    for xml_path in list_of_files:
+        test_xml_path = os.path.join(xml_path, filename+".xml")
+        print test_xml_path
+        with open(test_xml_path) as f:
+            num_lines = sum(1 for line in f.readlines() if len(line.strip())>0)
+        line_cnts.append((num_lines, xml_path))
+    line_cnts.sort(key=lambda x:x[0], reverse=True)
+    print "Sorted by line count..."
+    ret = [l[1] for l in line_cnts]
+    return ret
+
+
+def process_dir(xml_directory, img_directory, output_directory):
+    xml_filename_to_fullpath = defaultdict(list)
     for root, sub_folders, files in os.walk(xml_directory):
         for f in files:
             if not f.endswith(".xml"):
@@ -55,13 +87,15 @@ if __name__ == "__main__":
             if f in xml_filename_to_fullpath:
                 print "Error: this assumes no repeating files names: {} xml".format(f)
 
-            xml_filename_to_fullpath[f] = root
+            xml_filename_to_fullpath[f].append(root)
 
     png_filename_to_fullpath = {}
     image_ext = {}
     for root, sub_folders, files in os.walk(img_directory):
         for f in files:
-            if not f.endswith(".jpg") and not f.endswith(".png"):
+            valid_image_extensions = ['.jpg', '.png', '.JPG', '.PNG']
+            # if not f.endswith(".jpg") and not f.endswith(".png"):
+            if not any([f.endswith(v) for v in valid_image_extensions]):
                 continue
 
             if f in png_filename_to_fullpath:
@@ -72,8 +106,14 @@ if __name__ == "__main__":
             image_ext[f] = extension
             png_filename_to_fullpath[f] = root
 
-    print "Files in XML but not Images", len(set(xml_filename_to_fullpath.keys()) - set(png_filename_to_fullpath.keys()))
-    print "Files in Images but not XML", len(set(png_filename_to_fullpath.keys()) - set(xml_filename_to_fullpath.keys()))
+    xml_not_imgs = set(xml_filename_to_fullpath.keys()) - set(png_filename_to_fullpath.keys())
+    print "Files in XML but not Images", len(xml_not_imgs)
+    if len(xml_not_imgs) > 0:
+        print xml_not_imgs
+    img_not_xml = set(png_filename_to_fullpath.keys()) - set(xml_filename_to_fullpath.keys())
+    print "Files in Images but not XML", len(img_not_xml)
+    if len(img_not_xml) > 0:
+        print img_not_xml
     print ""
     to_process = set(xml_filename_to_fullpath.keys()) & set(png_filename_to_fullpath.keys())
     print "Number to be processed", len(to_process)
@@ -82,19 +122,35 @@ if __name__ == "__main__":
         if i%10==0:
             print i
         img_path = png_filename_to_fullpath[filename]
-        xml_path = xml_filename_to_fullpath[filename]
+        xml_paths = xml_filename_to_fullpath[filename]
 
         out_rel = os.path.relpath(img_path, img_directory)
         this_output_directory = os.path.join(output_directory, out_rel)
 
-        xml_path = os.path.join(xml_path, filename+".xml")
         img_path = os.path.join(img_path, filename+image_ext[filename])
-        try:
-            handle_single_image(xml_path, img_path, this_output_directory)
-        except KeyboardInterrupt:
-            raise
-        except:
+        success = False
+        for xml_path in find_best_xml(xml_paths, filename):
+            xml_path = os.path.join(xml_path, filename+".xml")
+            try:
+                handle_single_image(xml_path, img_path, this_output_directory)
+                success = True
+                break
+            except KeyboardInterrupt:
+                raise
+            except Exception, e:
+                print "Failed Attempt... ", filename
+                continue
+
+        if not success:
             out_str = filename+" Failed"
             print "".join(["*"]*len(out_str))
             print filename, "Failed"
             print "".join(["*"]*len(out_str))
+
+
+if __name__ == "__main__":
+    xml_directory = sys.argv[1]
+    img_directory = sys.argv[2]
+    output_directory = sys.argv[3]
+
+    process_dir(xml_directory, img_directory, output_directory)
