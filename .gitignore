@@ -1,5 +1,5 @@
-scripts/evaluation/TranskribusBaseLineEvaluationScheme
-scripts/evaluation/results
+scripts/evaluation/hisdb-task2/TranskribusBaseLineEvaluationScheme
+scripts/evaluation/hisdb-task2/results
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
