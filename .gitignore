@@ -1,3 +1,6 @@
+scripts/evaluation/TranskribusBaseLineEvaluationScheme
+scripts/evaluation/results
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
