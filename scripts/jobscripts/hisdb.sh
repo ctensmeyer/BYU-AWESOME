@@ -31,7 +31,7 @@ test_test_log_file=$test_log_dir/caffe_$$_test.log.INFO
 # TODO: change this to handle all the different outputs
 # TODO: Adative tile size for prediction
 # predict
-binarize_script=$CAFFE_HOME/python/binarize2.py
+prediction_script=/fslhome/waldol1/fsl_groups/fslg_icdar/compute/BYU-AWESOME/scripts/hisdb_prediction.py
 metric_script=$CAFFE_HOME/python/binary_eval2.py
 out_dir=$net_dir/predictions
 dataset_dir=/fslhome/waldol1/fsl_groups/fslg_icdar/compute/data/chris/hisdb
@@ -127,22 +127,22 @@ echo >> $result_file
 echo "Test: " >> $result_file
 tail -n6 $test_test_log_file | cut --delimiter=' ' -f5-  | cut --delimiter=] -f2 | sed 's/^ *//' | cut --delimiter='(' -f1 >> $result_file
 
-# binarize the whole images for evaluations
-out_blob=`grep top $deploy_file | tail -n1 | cut -d\" -f2`
-echo $out_blob
 
 sources=`cat $net_dir/inputs.txt | paste -sd,`
+#tile_size=`grep input_dim: $deploy_file | tail -n1 | cut -d' ' -f2`
+tile_size=512
+pad_size=128
 
-echo "Binarizing Images"
+echo "Predicting Images"
 echo "Dataset dir: $dataset_dir"
-python $binarize_script -t 256 --im-dirs $sources --gpu $gpu --out-blob $out_blob $deploy_file $best_model $dataset_dir $train_manifest $out_dir/train 
-#python $metric_script $out_dir/train/basic $dataset_dir/pr_dats $out_dir/train_metrics.txt $net_dir/train_summary.txt
+python $prediction_script -t $tile_size -p $pad_size --im-dirs $sources --gpu $gpu \
+	--out-blob $out_blob $deploy_file $best_model $dataset_dir $train_manifest $out_dir/train 
 
-python $binarize_script -t 256 --im-dirs $sources --gpu $gpu --out-blob $out_blob $deploy_file $best_model $dataset_dir $val_manifest $out_dir/val
-#python $metric_script $out_dir/val/basic $dataset_dir/pr_dats $out_dir/val_metrics.txt $net_dir/val_summary.txt
+python $prediction_script -t $tile_size -p $pad_size --im-dirs $sources --gpu $gpu \
+	--out-blob $out_blob $deploy_file $best_model $dataset_dir $val_manifest $out_dir/val
 
-python $binarize_script -t 256 --im-dirs $sources --gpu $gpu --out-blob $out_blob $deploy_file $best_model $dataset_dir $test_manifest $out_dir/test
-#python $metric_script $out_dir/test/basic $dataset_dir/pr_dats $out_dir/test_metrics.txt $net_dir/test_summary.txt
+python $prediction_script -t $tile_size -p $pad_size --im-dirs $sources --gpu $gpu \
+	--out-blob $out_blob $deploy_file $best_model $dataset_dir $test_manifest $out_dir/test
 
 # clean up snapshots
 echo "Cleaning up snapshots"
