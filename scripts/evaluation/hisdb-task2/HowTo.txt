@@ -1,0 +1,40 @@
+Open Shell and navigate to this folder.
+
+If you want to see the help, type:
+java -jar TranskribusBaseLineEvaluationScheme-0.1.0-jar-with-dependencies.jar --help
+
+If you want to run the example (in the minimum version) type:
+java -jar TranskribusBaseLineEvaluationScheme-0.1.0-jar-with-dependencies.jar truth.lst reco.lst
+
+Per default the results of the evaluation are saved in a txt-file! To avoid this use the flag -no_s
+java -jar TranskribusBaseLineEvaluationScheme-0.1.0-jar-with-dependencies.jar truth.lst reco.lst -no_s
+
+If you want to run the example and visualize truth (BLUE) and reco (RED) type:
+java -jar TranskribusBaseLineEvaluationScheme-0.1.0-jar-with-dependencies.jar truth.lst reco.lst -i metrEx.png
+(if you want to save this image, additionally type -s)
+
+If you want to run the example and visualize a chart, showing how metric values would be for binary decisions (for different thresholds) type:
+java -jar TranskribusBaseLineEvaluationScheme-0.1.0-jar-with-dependencies.jar truth.lst reco.lst -t
+
+If you want a pagewise evaluation to analyse your results more in detail, type
+java -jar TranskribusBaseLineEvaluationScheme-0.1.0-jar-with-dependencies.jar truth.lst reco.lst -p
+
+If you want to count lines which are above a defined threshold type:
+java -jar TranskribusBaseLineEvaluationScheme-0.1.0-jar-with-dependencies.jar truth.lst reco.lst -tTF 0.8
+(combined with -i metrEx.png you will see that solid lines (truth and hypo) are above the threshold and 
+dashed lines below the threshold!)
+
+
+
+
+If yout want to use the PAGE2TXT functionality of the tool, type for instance:
+java -cp TranskribusBaseLineEvaluationScheme-0.1.0-jar-with-dependencies.jar eu.transkribus.baselinemetrictool.util.Page2Txt T_Aigen_am_Inn_001_0056.xml 
+
+(the input can also be the path to a *.lst file containing paths to page-xmls)
+The conversion tool creates for EACH page-xml a list of *.txt files. For each Textregion in the page-xml a new *.txt file is created.
+Each textfile contains in the first row the coords of the Textregion, followed by an empty row followed by the baseline coords.
+Each line of coords is encoded as follows: x1,y1;x2,y2;x3,y3;....
+
+If a text file starts with an empty line -> NO textregion coords are available in the page-xmls
+If a text file starts with a poly and nothing follows no baslines are available...
+
