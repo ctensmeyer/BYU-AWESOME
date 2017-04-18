@@ -41,5 +41,5 @@ for idx, f in enumerate(sys.argv[4:]):
 		out.write("script=/fslhome/waldol1/fsl_groups/fslg_icdar/compute/BYU-AWESOME/scripts/jobscripts/binary.sh\n\n")
 		out.write("dir=%s\n\n" % f)
 		out.write("cp $script $dir\n")
-		out.write("$dir/hisdb.sh 0 resume\n")
+		out.write("$dir/binary.sh 0 resume\n")
 
