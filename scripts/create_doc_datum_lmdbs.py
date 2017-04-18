@@ -100,7 +100,7 @@ def split_im(im, tile_size):
 
 
 
-def create_lmdb(imroot, imlist, db_file, encoding, tile_size, gtroot):
+def create_lmdb(imroot, imlist, db_file, encoding, tile_size, gtroot, remove_background):
 	print "Starting on %s" % db_file
 	env, txn = open_db(db_file)
 	for x, imname in enumerate(imlist):
@@ -118,15 +118,16 @@ def create_lmdb(imroot, imlist, db_file, encoding, tile_size, gtroot):
 			assert all(map(lambda x,y: x.shape[:2] == y.shape[:2], ims, gts))
 
 			# remove patches containing all background
-			idx = 0
-			while idx < len(ims):
-				gt = gts[idx]
-				if gt.max() == 0:
-					#print "Deleting patch %d of image %s" % (idx, im_file)
-					del gts[idx]
-					del ims[idx]
-				else:
-					idx += 1
+			if remove_background:
+				idx = 0
+				while idx < len(ims):
+					gt = gts[idx]
+					if gt.max() == 0:
+						#print "Deleting patch %d of image %s" % (idx, im_file)
+						del gts[idx]
+						del ims[idx]
+					else:
+						idx += 1
 			#for idx, im in enumerate(ims):
 			#	cv2.imwrite("tmp/%d.png" % idx, im)
 			#exit()
@@ -189,13 +190,13 @@ def main(args):
 		if any(x in f for x in ('train', 'val', 'test')):
 			labels_files.append(os.path.join(labels_dir, f))
 
-	gtroot = os.path.join(in_dir, 'baselines_1')
+	gtroot = os.path.join(in_dir, args.gt_name)
 	for label_file in labels_files:
 		imnames = readfile(label_file)
 		num_files = len(imnames)
 		label_type = os.path.splitext(os.path.basename(label_file))[0]
 		for d in os.listdir(in_dir):
-			if any(x in d for x in ('howe', 'labels', 'original_classes', 'tmp', 'lmdb', 'pr_dats')):
+			if any(x in d for x in ('labels', 'original_classes', 'tmp', 'lmdb', 'pr_dats')):
 				continue
 			rd = os.path.join(in_dir, d)
 			fns = os.listdir(rd)
@@ -213,7 +214,7 @@ def main(args):
 				if check_lmdb(out_lmdb, num_files):
 					print "Skipping %s, already done" % out_lmdb
 				else:
-					create_lmdb(imroot, imnames, out_lmdb, args.encoding, args.size, gtroot)
+					create_lmdb(imroot, imnames, out_lmdb, args.encoding, args.size, gtroot, args.remove_background)
 			else:
 				# process each sub directory
 				for sd in os.listdir(rd):
@@ -230,7 +231,7 @@ def main(args):
 						if check_lmdb(out_lmdb, num_files):
 							print "Skipping %s, already done" % out_lmdb
 						else:
-							create_lmdb(imroot, imnames, out_lmdb, args.encoding, args.size, gtroot)
+							create_lmdb(imroot, imnames, out_lmdb, args.encoding, args.size, gtroot, args.remove_background)
 
 					else:
 						# relative darkness/canny
@@ -248,7 +249,7 @@ def main(args):
 								if check_lmdb(out_lmdb, num_files):
 									print "Skipping %s, already done" % out_lmdb
 								else:
-									create_lmdb(imroot, imnames, out_lmdb, args.encoding, args.size, gtroot)
+									create_lmdb(imroot, imnames, out_lmdb, args.encoding, args.size, gtroot, args.remove_background)
 							else:
 								# relative_darkness2
 								out_dir = os.path.join(out_root, d, sd, ssd)
@@ -264,7 +265,7 @@ def main(args):
 									if check_lmdb(out_lmdb, num_files):
 										print "Skipping %s, already done" % out_lmdb
 									else:
-										create_lmdb(imroot, imnames, out_lmdb, args.encoding, args.size, gtroot)
+										create_lmdb(imroot, imnames, out_lmdb, args.encoding, args.size, gtroot, args.remove_background)
 
 
 
@@ -277,6 +278,10 @@ def get_args():
 						help='How to store the image in the DocumentDatum')
 	parser.add_argument('-s', '--size', type=int, default=256,
 						help='Size to tile each image')
+	parser.add_argument('--remove-background', default=False, action='store_true',
+						help='Whether to only extract patches that have some positive GT pixels')
+	parser.add_argument('--gt-name', default='baselines_1', type=str,
+						help='Name of directory of the GT for determining backgorund for remove-background=True')
 
 	args = parser.parse_args()
 	return args
