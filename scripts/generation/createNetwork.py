@@ -168,7 +168,7 @@ def createNetwork(train_input_sources=[], train_label_sources={}, val_input_sour
 						  later_convs=0, deploy=False, seed=None, rotate=False, shear=False, perspective=False, elastic=False, 
 						  color_jitter=False, blur=False, noise=False, zero_border=0, train_batch_size=5, densenet=False, 
 						  residual=False, margin=0.5, num_upsample_filters=None, later_layers_kernel_size=3, round_0_weight=0.5,
-						  round_0_only=False):
+						  round_0_only=False, round_0_backprop=False):
 	assert deploy or len(train_input_sources) == len(val_input_sources)
 	assert deploy or len(train_label_sources) == len(val_label_sources)
 	assert deploy or train_input_sources
@@ -353,7 +353,7 @@ def createNetwork(train_input_sources=[], train_label_sources={}, val_input_sour
 		# round 1 of classification
 		n.rep_layer_1 = convLayer(n.rep_layer_0, kernel_size=later_layers_kernel_size, pad=later_pad, num_output=num_filters, stride=1)
 		prob_layers = [layers[output][-1] for output, _ in outputs]
-		n.augmented_rep_layer = L.Concat(n.rep_layer_1, *prob_layers, propagate_down=[True] + len(prob_layers) * [False] )
+		n.augmented_rep_layer = L.Concat(n.rep_layer_1, *prob_layers, propagate_down=[True] + len(prob_layers) * [round_0_backprop] )
 
 		for output, loss_weight in outputs:
 			prev_layer = convLayer(n.augmented_rep_layer, kernel_size=later_layers_kernel_size, pad=later_pad, num_output=num_filters, stride=1)

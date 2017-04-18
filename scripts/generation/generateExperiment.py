@@ -5,8 +5,8 @@ DS = ['hisdb']
 	
 
 ########################
-#datasets = ['hisdb']
-datasets = ['cbad_simple', 'cbad_complex']
+datasets = ['hisdb']
+#datasets = ['cbad_simple', 'cbad_complex']
 #######################
 
 TAG_SETS = {
@@ -56,7 +56,7 @@ def archExperiments(ds):
 						input_size=512, num_upsample_filters=8)
 
 def outputExperiments(ds):
-	group = "output"
+	group = "output_backprop"
 	tags = TAG_SETS["gray"]
 	outputs = [ ('baselines_7', 1.), ('boundary_mask', 0.5), ('comment_mask', 1.), 
 				('inverted_background_mask', 1.), ('decoration_mask', 1.), ('text_mask', 1.),
@@ -67,34 +67,40 @@ def outputExperiments(ds):
 		print "createExperiment(%r, %r, %r, %r)" % (ds, tags, group, name)
 		createNetwork.createExperiment(ds, ds, tags, [output], group, name, num_experiments=3, uniform_weights=True, 
 			kernel_size=7, depth=5, num_filters=24, num_scales=3, train_batch_size=10, 
-			input_size=512, num_upsample_filters=8)
+			input_size=512, num_upsample_filters=8, round_0_backprop=True)
+
+	name = "output_all" 
+	print "createExperiment(%r, %r, %r, %r)" % (ds, tags, group, name)
+	createNetwork.createExperiment(ds, ds, tags, outputs, group, name, num_experiments=3, uniform_weights=True, 
+		kernel_size=7, depth=5, num_filters=16, num_scales=3, train_batch_size=10, 
+		input_size=512, num_upsample_filters=8, round_0_backprop=True)
 
 
 def outputSingleExperiments(ds):
-	group = "output_single"
+	group = "output_single_384"
 	tags = TAG_SETS["gray"]
 	outputs = [ ('baselines_7', 1.), ('boundary_mask', 0.5), ('comment_mask', 1.), 
 				('inverted_background_mask', 1.), ('decoration_mask', 1.), ('text_mask', 1.),
-				('task3_gt', 1.), ('otsu', 1.)]
+				('task3_gt', 1.)]
 
-	#for output in outputs:
-	#	name = "output_%s" % output[0]
-	#	print "createHisDbExperiment(%r, %r, %r, %r)" % (ds, tags, group, name)
-	#	createNetwork.createHisDbExperiment(ds, tags, [output], group, name, num_experiments=3, uniform_weights=True, 
-	#		kernel_size=7, depth=5, num_filters=24, num_scales=3, train_batch_size=10, 
-	#		input_size=512, num_upsample_filters=8, round_0_only=True, round_0_weight=1.)
+	for output in outputs:
+		name = "output_%s" % output[0]
+		print "createExperiment(%r, %r, %r, %r)" % (ds, tags, group, name)
+		createNetwork.createExperiment(ds, ds, tags, [output], group, name, num_experiments=3, uniform_weights=True, 
+			kernel_size=9, depth=7, num_filters=24, num_scales=5, train_batch_size=5, 
+			input_size=384, num_upsample_filters=8, round_0_only=True, round_0_weight=1.)
 
 	name = "output_all" 
-	print "createHisDbExperiment(%r, %r, %r, %r)" % (ds, tags, group, name)
+	print "createExperiment(%r, %r, %r, %r)" % (ds, tags, group, name)
 	createNetwork.createExperiment(ds, ds, tags, outputs, group, name, num_experiments=3, uniform_weights=True, 
-		kernel_size=7, depth=5, num_filters=16, num_scales=3, train_batch_size=10, 
-		input_size=512, num_upsample_filters=8, round_0_only=True, round_0_weight=1.)
+		kernel_size=9, depth=7, num_filters=24, num_scales=5, train_batch_size=5, 
+		input_size=384, num_upsample_filters=8, round_0_only=True, round_0_weight=1.)
 
 
 if __name__ == "__main__":
 	for ds in datasets:
 		#augmentExperiments(ds)
-		archExperiments(ds)
+		#archExperiments(ds)
 		#outputExperiments(ds)
-		#outputSingleExperiments(ds)
+		outputSingleExperiments(ds)
 
