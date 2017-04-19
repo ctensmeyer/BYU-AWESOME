@@ -10,6 +10,9 @@ import traceback
 def invert(im):
 	return 255 - im
 
+def divide(im):
+	return im / 255
+
 
 # deprecated
 def gt_original_to_processed(im):
@@ -55,7 +58,7 @@ def median_transform(im, window_size):
 def otsu(im):
 	if im.ndim == 3:
 		im = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-	thresh, result = cv2.threshold(im, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+	thresh, result = cv2.threshold(im, 0, 1, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
 	return result
 
 
@@ -302,24 +305,19 @@ def convert_dats_main():
 
 def create_uniform_weights():
 	root_dir = sys.argv[1]
-	uniform_recall_dir = os.path.join(root_dir, 'uniform_recall_weights')
+	uniform_dir = os.path.join(root_dir, 'uniform_weights')
 	try:
-		os.makedirs(uniform_recall_dir)
-	except:
-		pass
-	uniform_precision_dir = os.path.join(root_dir, 'uniform_precision_weights')
-	try:
-		os.makedirs(uniform_precision_dir)
+		os.makedirs(uniform_dir)
 	except:
 		pass
 
-	in_dir = os.path.join(root_dir, 'original_images')
-	convert_dir(lambda im: 128 * np.ones_like(im), in_dir, uniform_recall_dir)
-	convert_dir(lambda im: 128 * np.ones_like(im), in_dir, uniform_precision_dir)
+	in_dir = os.path.join(root_dir, 'gray_images')
+	convert_dir(lambda im: 128 * np.ones_like(im), in_dir, uniform_dir)
 
 def create_dilated_baselines():
 	root_dir = sys.argv[1]
-	for x in [1,3,5,7]:
+	#for x in [1,3,5,7]:
+	for x in [int(sys.argv[2])]:
 		out_dir = os.path.join(root_dir, 'baselines_%d' % x)
 		try:
 			os.makedirs(out_dir)
@@ -328,7 +326,7 @@ def create_dilated_baselines():
 
 		in_dir = os.path.join(root_dir, 'baselines')
 		structure = np.ones((x,x))
-		convert_dir(lambda im: nd.morphology.binary_dilation(im/255, structure=structure).astype(np.uint8), in_dir, out_dir)
+		convert_dir(lambda im: nd.morphology.binary_dilation(im, structure=structure).astype(np.uint8), in_dir, out_dir)
 
 
 def convert_dir(func, in_dir, out_dir, force_overwrite=False):
@@ -402,7 +400,8 @@ def process_features3():
 def process_features4():
 	_dir = sys.argv[1]
 	in_dir = os.path.join(_dir, "original_images")
-	for transform in ['bilateral', 'percentile', 'otsu']:
+	#for transform in ['bilateral', 'percentile', 'otsu']:
+	for transform in ['otsu']:
 		print transform
 		func = globals()[transform]
 		out_dir = os.path.join(_dir, transform)
@@ -485,7 +484,6 @@ def invert_gt():
 	if not os.path.isdir(out_dir):
 		os.makedirs(out_dir)
 	convert_dir(invert, in_dir, out_dir, force_overwrite=True)
-
 
 def crop_parzival():
 	in_dir = sys.argv[1]
@@ -577,12 +575,13 @@ if __name__ == "__main__":
 	#clean_binary_hbr()
 	#clean_binary_hdlac()
 	#convert_dats_main()
-	#create_uniform_weights()
+	create_uniform_weights()
 	#create_dilated_recall_weights()
 	#create_modified_recall_weights()
-	create_dilated_baselines()
+	#create_dilated_baselines()
 
 	#convert_dir(invert, sys.argv[1], sys.argv[2], True)
+	#convert_dir(divide, sys.argv[1], sys.argv[1], True)
 	#convert_file(bilateral, '/home/chris/Dropbox/test.jpg', '/home/chris/Dropbox/out.png')
 	#for size in [3, 5, 7, 9]:
 	#	for thresh in [7, 15, 20, 30, 45]:
