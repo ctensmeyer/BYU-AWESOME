@@ -7,6 +7,8 @@ import xml.etree.ElementTree
 import re
 import json
 
+REGION_TYPES = ['TextRegion', 'GraphicRegion', 'TableRegion', 'SeparatorRegion', 'ChartRegion', 'ImageRegion']
+
 def extract_points(data_string):
     return [tuple(int(x) for x in v.split(',')) for v in data_string.split()]
 
@@ -31,7 +33,7 @@ def process_page(page, namespace):
     regions = []
     lines = []
 
-    types = ['TextRegion', 'GraphicRegion', 'TableRegion', 'SeparatorRegion', 'ChartRegion', 'ImageRegion']
+
 
     for region in page.findall(namespace+'TextRegion'):
         region_out, region_lines = process_region(region, namespace)
@@ -45,10 +47,10 @@ def process_page(page, namespace):
         graphic_regions.append(region_out)
 
     all_region_types = {}
-    for t in types:
+    for t in REGION_TYPES:
         type_regions = []
         for region in page.findall(namespace+t):
-            region_out, region_lines = process_region(region, namespace)
+            region_out, region_lines = process_region(region, namespace, find_subregions=True)
             type_regions.append(region_out)
 
         all_region_types[t] = type_regions
@@ -60,7 +62,7 @@ def process_page(page, namespace):
 
     return page_out
 
-def process_region(region, namespace):
+def process_region(region, namespace, find_subregions=False):
 
     region_out = {}
 
@@ -69,11 +71,22 @@ def process_region(region, namespace):
     region_out['id'] = region.attrib['id']
     region_out['type'] = region.attrib.get('type', '')
 
+    if find_subregions:
+        all_region_types = {}
+        for t in REGION_TYPES:
+            type_regions = []
+            for sub_region in region.findall(namespace+t):
+                sub_region_out, sub_region_lines = process_region(sub_region, namespace)
+                type_regions.append(sub_region_out)
+            all_region_types[t] = type_regions
+        region_out['subregions'] = all_region_types
+
     lines = []
     for line in region.findall(namespace+'TextLine'):
         line_out = process_line(line, namespace)
         line_out['region_id'] = region.attrib['id']
         lines.append(line_out)
+
 
     return region_out, lines
 
