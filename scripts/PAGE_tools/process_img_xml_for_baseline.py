@@ -5,11 +5,11 @@ import line_extraction
 import numpy as np
 import os
 import traceback
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 from collections import defaultdict
 
 
-def handle_single_image(xml_path, img_path, output_directory):
+def handle_single_image(xml_path, img_path, output_directory, use_baseline=True):
 
 
     with open(xml_path) as f:
@@ -26,22 +26,33 @@ def handle_single_image(xml_path, img_path, output_directory):
             raise Exception("Not handling this correctly")
 
         for region in xml_data[0]['regions']:
-
             region_mask = line_extraction.extract_region_mask(img, region['bounding_poly'])
 
             for i, line in enumerate(xml_data[0]['lines']):
                 if line['region_id'] != region['id']:
                     continue
 
-                if 'baseline' not in line:
-                    print "Warning: Missing baseline {}".format(xml_path)
-                    print line
-                    continue
+                line_mask = None
+                if use_baseline:
+                    if 'baseline' not in line:
+                        print "Warning: Missing baseline {}".format(xml_path)
+                        print line
+                        continue
+                    line_mask = line_extraction.extract_baseline(img, line['baseline'])
 
-                line_mask = line_extraction.extract_baseline(img, line['baseline'])
+                else:
+                    if 'bounding_poly' not in line:
+                        print "Warning: Missing bounding poly {}".format(xml_path)
+                        print line
+                        continue
+                    line_mask = line_extraction.extract_region_mask(img, line['bounding_poly'])
 
                 region_data[line_mask != 0] = 255
 
+        # for i, graphic_region in enumerate(xml_data[0]['graphic_regions']):
+        #     print i
+        #     line_mask = line_extraction.extract_region_mask(img, graphic_region['bounding_poly'])
+        #     region_data[line_mask != 0] = 255
     else:
         print "WARNING: {} has no lines".format(xml_path)
 
@@ -77,7 +88,7 @@ def find_best_xml(list_of_files, filename):
     return ret
 
 
-def process_dir(xml_directory, img_directory, output_directory):
+def process_dir(xml_directory, img_directory, output_directory, use_baseline=True):
     xml_filename_to_fullpath = defaultdict(list)
     for root, sub_folders, files in os.walk(xml_directory):
         for f in files:
@@ -132,7 +143,7 @@ def process_dir(xml_directory, img_directory, output_directory):
         for xml_path in find_best_xml(xml_paths, filename):
             xml_path = os.path.join(xml_path, filename+".xml")
             try:
-                handle_single_image(xml_path, img_path, this_output_directory)
+                handle_single_image(xml_path, img_path, this_output_directory, use_baseline)
                 success = True
                 break
             except KeyboardInterrupt:
@@ -152,5 +163,10 @@ if __name__ == "__main__":
     xml_directory = sys.argv[1]
     img_directory = sys.argv[2]
     output_directory = sys.argv[3]
+    region_setting = sys.argv[4] if len(sys.argv) > 4 else None
 
-    process_dir(xml_directory, img_directory, output_directory)
+    use_baseline = True
+    if region_setting is not None:
+        use_baseline = False
+
+    process_dir(xml_directory, img_directory, output_directory, use_baseline=use_baseline)

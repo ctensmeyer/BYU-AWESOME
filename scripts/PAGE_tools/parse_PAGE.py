@@ -36,8 +36,14 @@ def process_page(page, namespace):
         regions.append(region_out)
         lines += region_lines
 
+    graphic_regions = []
+    for region in page.findall(namespace+'GraphicRegion'):
+        region_out, region_lines = process_region(region, namespace)
+        graphic_regions.append(region_out)
+
     page_out['regions'] = regions
     page_out['lines'] = lines
+    page_out['graphic_regions'] = graphic_regions
 
     return page_out
 
@@ -68,6 +74,8 @@ def process_line(line, namespace):
             roIdx = custom.index("readingOrder")
             ro = int("".join([v for v in custom[roIdx+1] if v.isdigit()]))
             line_out['read_order'] = ro
+
+    line_out['id'] = line.attrib['id']
 
     baseline = line.find(namespace+'Baseline')
 
