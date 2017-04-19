@@ -30,6 +30,9 @@ def process_page(page, namespace):
     page_out = {}
     regions = []
     lines = []
+
+    types = ['TextRegion', 'GraphicRegion', 'TableRegion', 'SeparatorRegion', 'ChartRegion', 'ImageRegion']
+
     for region in page.findall(namespace+'TextRegion'):
         region_out, region_lines = process_region(region, namespace)
 
@@ -41,8 +44,18 @@ def process_page(page, namespace):
         region_out, region_lines = process_region(region, namespace)
         graphic_regions.append(region_out)
 
+    all_region_types = {}
+    for t in types:
+        type_regions = []
+        for region in page.findall(namespace+t):
+            region_out, region_lines = process_region(region, namespace)
+            type_regions.append(region_out)
+
+        all_region_types[t] = type_regions
+
     page_out['regions'] = regions
     page_out['lines'] = lines
+    page_out['all_region_types'] = all_region_types
     page_out['graphic_regions'] = graphic_regions
 
     return page_out
@@ -54,6 +67,7 @@ def process_region(region, namespace):
     coords = region.find(namespace+'Coords')
     region_out['bounding_poly'] = extract_points(coords.attrib['points'])
     region_out['id'] = region.attrib['id']
+    region_out['type'] = region.attrib.get('type', '')
 
     lines = []
     for line in region.findall(namespace+'TextLine'):
