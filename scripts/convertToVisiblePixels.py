@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+#python scripts/convertToVisiblePixels.py data/HisDB_gt/ data/out background gray comment red decoration blue maintext green -b
+
 import sys
 import cv2
 import os
