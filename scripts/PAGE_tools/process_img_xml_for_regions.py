@@ -25,34 +25,31 @@ def handle_single_image(xml_path, img_path, output_directory, use_baseline=True)
         if len(xml_data) > 1:
             raise Exception("Not handling this correctly")
 
-        for region in xml_data[0]['regions']:
-            region_mask = line_extraction.extract_region_mask(img, region['bounding_poly'])
+        region_cnt = len(xml_data[0]['all_region_types'])
+        for i, (region_type, regions) in enumerate(xml_data[0]['all_region_types'].iteritems()):
+            for region in regions:
+                region_mask = line_extraction.extract_region_mask(img, region['bounding_poly'])
+                region_mask[region_mask==255] = 1
 
-            for i, line in enumerate(xml_data[0]['lines']):
-                if line['region_id'] != region['id']:
-                    continue
+                ## USE THIS FOR MAIN CLASS PREDICTION ##
+                # region_data[region_mask != 0] = int((float(i+1) / region_cnt)*255)
+                # region_data[region_mask != 0] == i
+                ########################################
 
-                line_mask = None
-                if use_baseline:
-                    if 'baseline' not in line:
-                        print "Warning: Missing baseline {}".format(xml_path)
-                        print line
-                        continue
-                    line_mask = line_extraction.extract_baseline(img, line['baseline'])
+                ## USE THIS FOR SUBREGIONS ##
+                region_mask = region_mask*(2**i)
+                region_data = np.bitwise_or(region_mask, region_data)
 
-                else:
-                    if 'bounding_poly' not in line:
-                        print "Warning: Missing bounding poly {}".format(xml_path)
-                        print line
-                        continue
-                    line_mask = line_extraction.extract_region_mask(img, line['bounding_poly'])
+                for j, (sub_region_type, sub_regions) in enumerate(region['subregions'].iteritems()):
+                    for sub_region in sub_regions:
+                        sub_region_mask = line_extraction.extract_region_mask(img, sub_region['bounding_poly'])
+                        sub_region_mask[sub_region_mask==255] = 1
+                        sub_region_mask = sub_region_mask*(2**j)
+                        region_data = np.bitwise_or(sub_region_mask, region_data)
+                #############################
 
-                region_data[line_mask != 0] = 255
-
-        # for i, graphic_region in enumerate(xml_data[0]['graphic_regions']):
-        #     print i
-        #     line_mask = line_extraction.extract_region_mask(img, graphic_region['bounding_poly'])
-        #     region_data[line_mask != 0] = 255
+        plt.imshow(region_data, cmap='spectral')
+        plt.show()
     else:
         print "WARNING: {} has no lines".format(xml_path)
 
@@ -104,7 +101,7 @@ def process_dir(xml_directory, img_directory, output_directory, use_baseline=Tru
     image_ext = {}
     for root, sub_folders, files in os.walk(img_directory):
         for f in files:
-            valid_image_extensions = ['.jpg', '.png', '.JPG', '.PNG']
+            valid_image_extensions = ['.jpg', '.png', '.JPG', '.PNG', '.tif']
             # if not f.endswith(".jpg") and not f.endswith(".png"):
             if not any([f.endswith(v) for v in valid_image_extensions]):
                 continue
@@ -149,6 +146,7 @@ def process_dir(xml_directory, img_directory, output_directory, use_baseline=Tru
             except KeyboardInterrupt:
                 raise
             except Exception, e:
+                print e
                 print "Failed Attempt... ", filename
                 continue
 

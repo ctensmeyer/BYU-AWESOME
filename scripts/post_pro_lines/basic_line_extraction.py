@@ -22,6 +22,8 @@ ccs = np.zeros_like(gray)
 def getLabel(l,labelMap):
     labelC=l
     while labelC in labelMap:
+        if labelMap[labelC]==labelC
+            return labelC
         labelC = labelMap[labelC]
     return labelC
 

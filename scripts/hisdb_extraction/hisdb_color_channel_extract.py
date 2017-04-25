@@ -32,9 +32,9 @@ for i, f in enumerate(files):
     # raw_input()
 
     background_ch = np.bitwise_and(b_channel, np.full_like(b_channel, 1))
-    main_text_body_ch = np.bitwise_and(b_channel, np.full_like(b_channel, 2))
+    comment_ch = np.bitwise_and(b_channel, np.full_like(b_channel, 2))
     decoration_ch = np.bitwise_and(b_channel, np.full_like(b_channel, 4))
-    comment_ch = np.bitwise_and(b_channel, np.full_like(b_channel, 8))
+    main_text_body_ch = np.bitwise_and(b_channel, np.full_like(b_channel, 8))
     boundary_ch = np.bitwise_and(r_channel, np.full_like(r_channel, 128))
 
 
