@@ -1,3 +1,6 @@
+scripts/evaluation/hisdb-task2/TranskribusBaseLineEvaluationScheme
+scripts/evaluation/hisdb-task2/results
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

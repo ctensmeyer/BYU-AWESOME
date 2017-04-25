@@ -3,7 +3,7 @@ import os
 import sys
 
 if len(sys.argv) < 5:
-	print "python make_hisdb.py out_dir prefix dataset [net_dirs...]"
+	print "python make_binary.py out_dir prefix dataset [net_dirs...]"
 	exit()
 
 out_dir = sys.argv[1]
@@ -38,7 +38,7 @@ for idx, f in enumerate(sys.argv[4:]):
 		out.write("export OMP_NUM_THREADS=$SLURM_CPUS_ON_NODE\n")
 		out.write("echo \"Cuda devices: $CUDA_VISIBLE_DEVICES\"\n\n")
 
-		out.write("script=/fslhome/waldol1/fsl_groups/fslg_icdar/compute/BYU-AWESOME/scripts/jobscripts/hisdb.sh\n\n")
+		out.write("script=/fslhome/waldol1/fsl_groups/fslg_icdar/compute/BYU-AWESOME/scripts/jobscripts/binary.sh\n\n")
 		out.write("dir=%s\n\n" % f)
 		out.write("cp $script $dir\n")
 		out.write("$dir/hisdb.sh 0 resume\n")
