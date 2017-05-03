@@ -196,7 +196,7 @@ def main(args):
 		num_files = len(imnames)
 		label_type = os.path.splitext(os.path.basename(label_file))[0]
 		for d in os.listdir(in_dir):
-			if any(x in d for x in ('labels', 'original_classes', 'tmp', 'lmdb', 'pr_dats')):
+			if any(x in d for x in ('labels', 'tmp', 'lmdb', 'pr_dats')):
 				continue
 			rd = os.path.join(in_dir, d)
 			fns = os.listdir(rd)

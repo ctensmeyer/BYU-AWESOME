@@ -311,7 +311,7 @@ def create_uniform_weights():
 	except:
 		pass
 
-	in_dir = os.path.join(root_dir, 'gray_images')
+	in_dir = os.path.join(root_dir, 'original_images')
 	convert_dir(lambda im: 128 * np.ones_like(im), in_dir, uniform_dir)
 
 def create_dilated_baselines():
@@ -338,10 +338,15 @@ def convert_dir(func, in_dir, out_dir, force_overwrite=False):
 		if os.path.exists(out_path) and not force_overwrite:
 			continue
 
-		im = cv2.imread(in_path, cv2.IMREAD_UNCHANGED)
+		#im = cv2.imread(in_path, cv2.IMREAD_UNCHANGED)
+		im = cv2.imread(in_path, 1)
 		if im is None:
 			raise Exception("Image %s could not be read" % in_path)
-		processed = func(im)
+		try:
+			processed = func(im)
+		except:
+			print "Exception occured on image: %s" % f
+			raise
 
 		cv2.imwrite(out_path, processed)
 
@@ -566,7 +571,7 @@ if __name__ == "__main__":
 	#process_features4()
 	#process_features5()
 	#process_features6()
-	#process_features7()
+	process_features7()
 	#process_gt()
 	#invert_gt()
 	#clean_binary_single()
@@ -575,7 +580,7 @@ if __name__ == "__main__":
 	#clean_binary_hbr()
 	#clean_binary_hdlac()
 	#convert_dats_main()
-	create_uniform_weights()
+	#create_uniform_weights()
 	#create_dilated_recall_weights()
 	#create_modified_recall_weights()
 	#create_dilated_baselines()

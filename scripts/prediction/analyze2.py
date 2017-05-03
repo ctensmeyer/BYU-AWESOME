@@ -6,7 +6,8 @@ import collections
 import numpy as np
 
 
-metric_names = ["P-Fm", "P-Prec", "P-Recall", "Fm", "Prec", "Recall", "DRD", "PSNR", "Accuracy"]
+#metric_names = ["P-Fm", "P-Prec", "P-Recall", "Fm", "Prec", "Recall", "DRD", "PSNR", "Accuracy"]
+metric_names = ["Fm", "Prec", "Recall", "DRD", "PSNR", "Accuracy"]
 #metric_names = ["P-Fm", "P-Prec", "P-Recall", "Fm", "Prec", "Recall", "PSNR", "Accuracy"]
 display_metric_names = ["P-Fm", "Fm", "DRD", "PSNR"]
 robust = False

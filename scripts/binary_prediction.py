@@ -209,48 +209,12 @@ def write_output(locations, raw_subwindows, binarized_subwindows, im_file, image
 		binary_out_file = os.path.join(args.out_dir, 'binary', key, im_file)
 		cv2.imwrite(binary_out_file, binary_result)
 
+		# TODO: fix this
 		raw_result = stich_together(locations, raw_subwindows[key], tuple(image.shape[0:2]), 
-			np.uint8, pad_size, args.tile_size)
-		raw_result = 255 * raw_result
+			np.float, pad_size, args.tile_size)
+		raw_result = (255 * raw_result).astype(np.uint8)
 		raw_out_file = os.path.join(args.out_dir, 'raw', key, im_file)
 		cv2.imwrite(raw_out_file, raw_result)
-
-	#if args.verbose:
-	#	out_dir = os.path.join(args.out_dir, 'verbose', os.path.splitext(os.path.basename(im_file))[0])
-	#	safe_mkdir(out_dir)
-	#	out_prefix = os.path.join(out_dir, os.path.splitext(im_file)[0])
-
-	#	binary_out_file = out_prefix + "_pred.png"
-	#	cv2.imwrite(binary_out_file, binary_result)
-
-	#	# raw probabilities
-	#	raw_result = stich_together(locations, raw_subwindows, tuple(image.shape[0:2]), 
-	#		np.float, pad_size, args.tile_size)
-	#	raw_out_file = out_prefix + "_raw.png"
-	#	cv2.imwrite(raw_out_file, 255 * (1 - raw_result))
-
-	#	# add in the gt file
-	#	gt_file = os.path.join(args.dataset_dir, 'original_gt', im_file)
-	#	gt_im = cv2.imread(gt_file, -1) / 255.
-	#	gt_out_file = out_prefix + "_gt.png"
-	#	cv2.imwrite(gt_out_file, 255 * gt_im)
-
-	#	# difference between predicted and gt
-	#	diff_im = xor_image(binary_result / 255, gt_im)
-	#	diff_out_file = out_prefix + "_diff.png"
-	#	cv2.imwrite(diff_out_file, diff_im)
-
-	#	# histogram of probabilities
-	#	save_histo(raw_result, out_prefix + "_histo_global.png", "Global")
-	#	save_histo(raw_result, out_prefix + "_histo_background.png", "Background Pixels", gt_im)
-
-	#	for x in xrange(3):
-	#		# histogram of probabilites within x pixels of foreground
-	#		save_histo(raw_result, out_prefix + "_histo_foreground_%d.png" % x, "Foreground Pixels (within %d)" % x, 1 - gt_im)
-	#		gt_im = scipy.ndimage.morphology.binary_erosion(gt_im)
-
-	#	if im.shape[2] == 1 or im.shape[2] == 3:
-	#		cv2.imwrite(out_prefix + "_original_image.png", im / args.scale + args.mean)
 
 
 def get_output_blobs(f):
@@ -312,9 +276,9 @@ def get_args():
 				help="Print every print-count images processed")
 	parser.add_argument("-b", "--batch-size", default=4, type=int, 
 				help="Max number of transforms in single batch per original image")
-	parser.add_argument("-p", "--pad", default=128, type=int, 
+	parser.add_argument("-p", "--pad", default=96, type=int, 
 				help="Padding size")
-	parser.add_argument("-t", "--tile-size", default=512, type=int, 
+	parser.add_argument("-t", "--tile-size", default=256, type=int, 
 				help="Size of tiles to extract")
 	parser.add_argument("--im-dirs", default='original_images', type=str, 
 				help="comma separated list of input images to the network")

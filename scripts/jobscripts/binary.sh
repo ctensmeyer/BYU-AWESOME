@@ -130,9 +130,9 @@ grep 'loss)$' $test_test_log_file | cut --delimiter=' ' -f5-  | cut --delimiter=
 
 
 sources=`cat $net_dir/inputs.txt | paste -sd,`
-#tile_size=`grep input_dim: $deploy_file | tail -n1 | cut -d' ' -f2`
-tile_size=512
-pad_size=128
+tile_size=`grep input_dim: $deploy_file | tail -n1 | cut -d' ' -f2`
+#tile_size=512
+pad_size=$(( $tile_size / 4 ))
 
 echo "Predicting Images"
 echo "Dataset dir: $dataset_dir"

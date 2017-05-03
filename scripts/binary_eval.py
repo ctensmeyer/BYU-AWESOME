@@ -96,11 +96,12 @@ def get_metrics(predict_fn, gt_fn):
 	assert predict_im.shape == gt_im.shape
 
 	accuracy = measure_acc(predict_im, gt_im)
-	psnr = measure_psnr(predict_im, gt_im)
-	drd = measure_drd(predict_im, gt_im)
+	#psnr = measure_psnr(predict_im, gt_im)
+	#drd = measure_drd(predict_im, gt_im)
 	f, p, r = measure_fmeasure(predict_im, gt_im)
 
-	return f, p, r, drd, psnr, accuracy
+	#return f, p, r, drd, psnr, accuracy
+	return f, p, r, accuracy
 
 def main(predict_dir, gt_dir, out_file, summary_file):
 	fd = open(out_file, 'w')

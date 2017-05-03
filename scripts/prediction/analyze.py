@@ -7,7 +7,6 @@ import numpy as np
 
 
 robust = False
-remove_outliers = False
 print_diff = False
 diffs_as_std = True
 
@@ -46,14 +45,6 @@ try:
 			idx = 0
 			cur_split = None
 			try:
-				if remove_outliers:
-					skip = False
-					for line in lines:
-						tokens = line.split()
-						if tokens and tokens[0] == 'weighted_fmeasure_loss' and float(tokens[2]) > 0.2:
-							skip = True
-					if skip:
-						continue
 				while idx < len(lines):
 					line = lines[idx]
 					if line.strip() == "":
@@ -76,7 +67,7 @@ try:
 		if not at_least_one:
 			continue
 
-		_l = [sdir + " (%d)" % len(metrics['Validation']['weighted_fmeasure_loss']), 
+		_l = [sdir + " (%d)" % len(metrics['Validation']['num_iters']), 
 			avg(metrics['Validation']['num_iters'])]
 		if diffs_as_std:
 			_diffs = [sdir + "_diff", np.std(metrics['Validation']['num_iters']) if metrics['Validation']['num_iters'] else 999]
@@ -85,11 +76,9 @@ try:
 				if metrics['Validation']['num_iters'] else 999]
 		labels = ['Experiments:', 'Iters']
 		try:
-			#for metric in ['weighted_fmeasure_loss', 'fmeasure', 'precision', 'recall', 'accuracy']:
-			#for metric in ['weighted_fmeasure_loss', 'fmeasure', 'precision', 'recall', 'accuracy']:
-			for metric in ['weighted_fmeasure_loss', 'fmeasure', 'precision', 'recall']:
-				#for split, split_label in zip(['Validation', 'Test', 'Train'], ['V', 'Z', 'T']):
-				for split, split_label in zip(['Validation', 'Train'], ['V', 'T']):
+			for metric in metrics['Train'].keys():
+				for split, split_label in zip(['Validation', 'Test', 'Train'], ['V', 'Z', 'T']):
+				#for split, split_label in zip(['Validation', 'Train'], ['V', 'T']):
 					_l.append(avg(metrics[split][metric]))
 					if diffs_as_std:
 						_diffs.append(np.std(metrics[split][metric]) if metrics[split][metric] else 999)
