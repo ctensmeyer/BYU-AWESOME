@@ -29,10 +29,10 @@ test_test_log_file=$test_log_dir/caffe_$$_test.log.INFO
 # TODO: change this to handle all the different outputs
 # TODO: Adative tile size for prediction
 # predict
-best_model_script=/fslhome/waldol1/fsl_groups/fslg_icdar/compute/BYU-AWESOME/scripts/get_best_model.py
-prediction_script=/fslhome/waldol1/fsl_groups/fslg_icdar/compute/BYU-AWESOME/scripts/binary_prediction.py
-eval_script=/fslhome/waldol1/fsl_groups/fslg_icdar/compute/BYU-AWESOME/scripts/binary_eval.py
-xor_script=/fslhome/waldol1/fsl_groups/fslg_icdar/compute/BYU-AWESOME/scripts/binary_image_diff.py
+best_model_script=/fslhome/waldol1/fsl_groups/fslg_icdar/compute/BYU-AWESOME/scripts/prediction/get_best_model.py
+prediction_script=/fslhome/waldol1/fsl_groups/fslg_icdar/compute/BYU-AWESOME/scripts/prediction/binary_prediction.py
+eval_script=/fslhome/waldol1/fsl_groups/fslg_icdar/compute/BYU-AWESOME/scripts/prediction/binary_eval.py
+xor_script=/fslhome/waldol1/fsl_groups/fslg_icdar/compute/BYU-AWESOME/scripts/prediction/binary_image_diff.py
 out_dir=$net_dir/predictions
 dataset=`readlink -f $net_dir | rev | cut -d\/ -f4 | rev`
 dataset_dir=/fslhome/waldol1/fsl_groups/fslg_icdar/compute/data/chris/$dataset

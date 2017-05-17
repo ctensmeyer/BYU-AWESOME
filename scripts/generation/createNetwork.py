@@ -20,11 +20,8 @@ ROOT="/fslgroup/fslg_icdar/compute"
 def get_num_channels(lmdbs):
 	count = 0
 	for lmdb in lmdbs:
-		if 'gray' in lmdb:
-			if 'relative' in lmdb:
-				count += 3
-			else:
-				count += 1
+		if 'gray' in lmdb or 'slice' in lmdb:
+			count += 1
 		else:
 			count += 3
 	return count
@@ -78,10 +75,28 @@ def convLayer(prev, lrn=False, param_name=None, bn=False, **kwargs):
 	return relu
 
 
-def convLayerSigmoid(prev, bn=False, **kwargs):
-	conv = L.Convolution(prev, param=[dict(lr_mult=1), dict(lr_mult=2)], weight_filler=dict(type='msra'), **kwargs)
+def convLayerSigmoid(prev, param_name=None, bn=False, **kwargs):
+	if param_name:
+		name1 = param_name + '_kernels'
+		name2 = param_name + '_bias'
+		conv = L.Convolution(prev, param=[dict(lr_mult=1, name=name1), dict(lr_mult=2, name=name2)], 
+			weight_filler=dict(type='msra'), **kwargs)
+	else:
+		conv = L.Convolution(prev, param=[dict(lr_mult=1), dict(lr_mult=2)], 
+			weight_filler=dict(type='msra'), **kwargs)
 	sigmoid = L.Sigmoid(conv, in_place=True)
 	return sigmoid
+
+def convLayerSoftmaxLoss(prev, gt, loss_weight=1, **kwargs):
+	conv = L.Convolution(prev, param=[dict(lr_mult=1), dict(lr_mult=2)], weight_filler=dict(type='msra'), **kwargs)
+	loss = L.SoftmaxWithLoss(conv, gt, loss_weight=loss_weight, ntop=1)
+	return loss
+
+
+def convLayerSoftmax(prev, bn=False, **kwargs):
+	conv = L.Convolution(prev, param=[dict(lr_mult=1), dict(lr_mult=2)], weight_filler=dict(type='msra'), **kwargs)
+	probs = L.Softmax(conv)
+	return probs
 
 
 def convLayerOnly(prev, bn=False, **kwargs):
@@ -135,20 +150,20 @@ def createTransformParam(scale, shift,  seed, rotate=False, shear=False, perspec
 	elif shift is not None:
 		params.append({'linear_params': {'scale': 1.0, 'shift': shift}})
 	if rotate:
-		params.append({'rotate_params': {'max_angle': 5, 
+		params.append({'rotate_params': {'max_angle': 10, 
 										'interpolation': interp,
 										'border_mode': proto.BORDER_REFLECT}})
 	if shear:
-		params.append({'shear_params': {'max_shear_angle': 5, 
+		params.append({'shear_params': {'max_shear_angle': 10, 
 										'interpolation': interp,
 										'border_mode': proto.BORDER_REFLECT}})
 	if perspective:
-		params.append({'perspective_params': {'max_sigma': 0.00005, 
+		params.append({'perspective_params': {'max_sigma': 0.00010, 
 											'interpolation': interp,
 											'border_mode': proto.BORDER_REFLECT}})
 	if elastic:
 		params.append({'elastic_deformation_params': {'sigma': 3.0, 
-												'max_alpha': 5,
+												'max_alpha': 7.5,
 												'interpolation': interp,
 												'border_mode': proto.BORDER_REFLECT}})
 	if blur:
@@ -167,8 +182,8 @@ def createNetwork(train_input_sources=[], train_label_sources={}, val_input_sour
 						  outputs=[], depth=3, kernel_size=3, num_filters=24, num_scales=1, lrn=0, pool=0, global_features=0, 
 						  later_convs=0, deploy=False, seed=None, rotate=False, shear=False, perspective=False, elastic=False, 
 						  color_jitter=False, blur=False, noise=False, zero_border=0, train_batch_size=5, densenet=False, 
-						  residual=False, margin=0.5, num_upsample_filters=None, later_layers_kernel_size=3, round_0_weight=0.5,
-						  round_0_only=False, round_0_backprop=False):
+						  residual=False, margin=0.5, num_upsample_filters=None, later_layers_kernel_size=3, round_weights=None,
+						  backprop_probs=False, mse_lambda=0.1, avg_fm=True, recurrent_rounds=False, skip_zero_loss=False):
 	assert deploy or len(train_input_sources) == len(val_input_sources)
 	assert deploy or len(train_label_sources) == len(val_label_sources)
 	assert deploy or train_input_sources
@@ -176,6 +191,8 @@ def createNetwork(train_input_sources=[], train_label_sources={}, val_input_sour
 		num_last_layer_filters = num_filters
 	if seed == None:
 		seed = random.randint(0, 2147483647)
+	if round_weights is None:
+		round_weights = [1]
 
 	n = caffe.NetSpec()	
 	data_param = dict(backend=P.Data.LMDB)
@@ -331,50 +348,83 @@ def createNetwork(train_input_sources=[], train_label_sources={}, val_input_sour
 	if densenet:
 		prev_layer = L.Concat(*layers[0])
 
-	n.rep_layer_0 = prev_layer
+	rep_layer = prev_layer
 
-	# round 0 of classification
-	for output, loss_weight in outputs:
-		prev_layer = convLayer(n.rep_layer_0, kernel_size=later_layers_kernel_size, pad=later_pad, num_output=num_filters, stride=1)
-		layers[output].append(prev_layer)
-		probs = convLayerSigmoid(prev_layer, kernel_size=1, pad=0, num_output=1, stride=1)
-		setattr(n, '%s_prob_0' % output, probs)
-		layers[output].append(probs)
-		if not deploy:
-			loss = L.WeightedFmeasureLoss(probs, 
-				getattr(n, 'gt_%s' % output), 
-				getattr(n, 'recall_weights_%s' % output), 
-				getattr(n, 'precision_weights_%s' % output), 
-				loss_weight=(round_0_weight * loss_weight / len(outputs)), 
-				margin=margin)
-			setattr(n, '%s_loss_0' % output, loss)
+	for round, round_weight in enumerate(round_weights):
+		setattr(n, 'rep_layer_%d' % round, rep_layer)
 
-	if not round_0_only:
-		# round 1 of classification
-		n.rep_layer_1 = convLayer(n.rep_layer_0, kernel_size=later_layers_kernel_size, pad=later_pad, num_output=num_filters, stride=1)
-		prob_layers = [layers[output][-1] for output, _ in outputs]
-		n.augmented_rep_layer = L.Concat(n.rep_layer_1, *prob_layers, propagate_down=[True] + len(prob_layers) * [round_0_backprop] )
+		for tup in outputs:
+			output = tup[0]
+			loss_weight = tup[1]
 
-		for output, loss_weight in outputs:
-			prev_layer = convLayer(n.augmented_rep_layer, kernel_size=later_layers_kernel_size, pad=later_pad, num_output=num_filters, stride=1)
-			layers[output].append(prev_layer)
-			probs = convLayerSigmoid(prev_layer, kernel_size=1, pad=0, num_output=1, stride=1, ntop=1)
-			setattr(n, '%s_prob_1' % output, probs)
-			layers[output].append(probs)
-			if not deploy:
-				loss = L.WeightedFmeasureLoss(probs, 
-					getattr(n, 'gt_%s' % output), 
-					getattr(n, 'recall_weights_%s' % output), 
-					getattr(n, 'precision_weights_%s' % output), 
-					loss_weight=loss_weight / len(outputs), 
-					margin=margin)
-				setattr(n, '%s_loss_1' % output, loss)
+			# optionally make the rounds use shared weights (unrolled recurrence)
+			# not implemented for softmax stuff
+			if round > 0 and recurrent_rounds:
+				rep_param_name = "rep_%s" % output
+				classifier_param_name1 = "classifier_1_%s" % output
+				classifier_param_name2 = "classifier_2_%s" % output
+			else:
+				rep_param_name = None
+				classifier_param_name1 = None
+				classifier_param_name2 = None
+
+			if round_weight == 0 and skip_zero_loss:
+				if round != len(round_weights)-1:
+					rep_layer = convLayer(rep_layer, kernel_size=later_layers_kernel_size, pad=later_pad, 
+											num_output=num_filters, stride=1, param_name=rep_param_name)
+			else:
+				prev_layer = convLayer(rep_layer, kernel_size=later_layers_kernel_size, pad=later_pad, 
+										num_output=num_filters, stride=1, param_name=classifier_param_name1)
+				layers[output].append(prev_layer)
+
+				# check if output is binary or if an n-way softmax is needed
+				if isinstance(tup[-1], (int, long)) and tup[-1] > 2: 
+					num_classes = tup[-1]
+					if not deploy:
+						loss_weight= round_weight * loss_weight / len(outputs)
+						gt = getattr(n, 'gt_%s' % output)
+						if round != (len(round_weights) - 1):
+							# need the probs to pass on
+							probs = convLayerSoftmax(prev_layer, gt, 
+								kernel_size=1, pad=0, num_output=num_classes, stride=1)
+							setattr(n, '%s_prob_%d' % (output, round),  probs)
+							layers[output].append(probs)
+
+						loss = convLayerSoftmaxLoss(prev_layer, gt, loss_weight=loss_weight, 
+							kernel_size=1, pad=0, num_output=num_classes, stride=1)
+						setattr(n, '%s_loss_%d' % (output, round),  loss)
+					else:
+						probs = convLayerSoftmax(prev_layer, kernel_size=1, pad=0, num_output=num_classes, stride=1)
+						setattr(n, '%s_prob_%d' % (output, round),  probs)
+						layers[output].append(probs)
+				else:
+					probs = convLayerSigmoid(prev_layer, kernel_size=1, pad=0, num_output=1, stride=1, param_name=classifier_param_name2)
+					setattr(n, '%s_prob_%d' % (output, round),  probs)
+					layers[output].append(probs)
+					if not deploy:
+						loss = L.WeightedFmeasureLoss(probs, 
+							getattr(n, 'gt_%s' % output), 
+							getattr(n, 'recall_weights_%s' % output), 
+							getattr(n, 'precision_weights_%s' % output), 
+							loss_weight=(round_weight * loss_weight / len(outputs)), 
+							margin=margin,
+							mse_lambda=mse_lambda,
+							avg_fm=avg_fm)
+						setattr(n, '%s_loss_%d' % (output, round), loss)
+
+				# not last round
+				if round != len(round_weights)-1:
+					new_rep_layer = convLayer(rep_layer, kernel_size=later_layers_kernel_size, pad=later_pad, 
+												num_output=num_filters, stride=1, param_name=rep_param_name)
+					prob_layers = [layers[output[0]][-1] for output in outputs]
+					rep_layer = L.Concat(new_rep_layer, *prob_layers, propagate_down=[True] + len(prob_layers) * [backprop_probs] )
+			
 		
 	return n.to_proto()
 
 
-def createExperiment(exp_set, ds, tags, outputs, group, experiment, num_experiments=1, lr=0.0005, uniform_weights=False,
-		input_size=256, train_batch_size=5, **kwargs):
+def createExperiment(exp_set, ds, tags, outputs, group, experiment, num_experiments=1, lr=0.001,
+		input_size=256, train_batch_size=5, iter_size=1, **kwargs):
 
 	sources_input_train = map(lambda tag: LMDB_PATH(ds, tag, input_size, data_partition='train'), tags)
 	sources_input_val = map(lambda tag: LMDB_PATH(ds, tag, input_size, data_partition='val'), tags)
@@ -383,15 +433,15 @@ def createExperiment(exp_set, ds, tags, outputs, group, experiment, num_experime
 	sources_label_train = dict()
 	sources_label_val = dict()
 	sources_label_test = dict()
-	for output, loss_weight in outputs:
-		if uniform_weights:
-			label_tags = [output, 'uniform_weights', 'uniform_weights']
+	for output in outputs:
+		if len(output) > 2 and isinstance(output[2], str):
+			label_tags = [output[0], output[2], output[3]]  # output[2] is recall weights, output[3] is precision weights
 		else:
-			label_tags = [output, '%s_recall_weights' % output, '%s_precision_weights' % output]
+			label_tags = [output[0], 'uniform_weights', 'uniform_weights']
 
-		sources_label_train[output] = map(lambda tag: LMDB_PATH(ds, tag, input_size, data_partition='train'), label_tags)
-		sources_label_val[output] = map(lambda tag: LMDB_PATH(ds, tag, input_size, data_partition='val'), label_tags)
-		sources_label_test[output] = map(lambda tag: LMDB_PATH(ds, tag, input_size, data_partition='test'), label_tags)
+		sources_label_train[output[0]] = map(lambda tag: LMDB_PATH(ds, tag, input_size, data_partition='train'), label_tags)
+		sources_label_val[output[0]] = map(lambda tag: LMDB_PATH(ds, tag, input_size, data_partition='val'), label_tags)
+		sources_label_test[output[0]] = map(lambda tag: LMDB_PATH(ds, tag, input_size, data_partition='test'), label_tags)
 
 	params = {'train_input_sources': sources_input_train, 'train_label_sources': sources_label_train, 'outputs': outputs,
 			  'train_batch_size': train_batch_size}
@@ -443,7 +493,8 @@ def createExperiment(exp_set, ds, tags, outputs, group, experiment, num_experime
 				if isinstance(tag, tuple):
 					tag = tag[1]
 				for idx in xrange(len(tag) - 1):
-					if tag[idx] == '_' and tag[idx +1].isdigit():
+					if tag[idx] == '_' and (tag[idx+1].isdigit() or tag.startswith('slice') or 
+							tag.startswith( ('lower', 'middle', 'upper'), idx+ 1)):
 						tag = tag[:idx] + '/' + tag[idx+1:]
 				f.write("%s\n" % tag)
 
@@ -452,6 +503,8 @@ def createExperiment(exp_set, ds, tags, outputs, group, experiment, num_experime
 		train_val_solver = os.path.join(exp_folder, TRAIN_VAL)
 
 		solver = os.path.join(out_dir, SOLVER)
+		cbad = ('cbad' in ds)
+
 		with open(solver, "w") as f:
 			f.write("net: \"%s\"\n" % (train_val_solver))
 			f.write("base_lr: %f\n" % lr)
@@ -459,20 +512,23 @@ def createExperiment(exp_set, ds, tags, outputs, group, experiment, num_experime
 			f.write("monitor_test: true\n")
 			f.write("monitor_test_id: 0\n")
 			f.write("test_compute_loss: true\n")
-			f.write("max_steps_without_improvement: %d\n" % 4)
-			f.write("max_periods_without_improvement: %d\n" % 3)
+			f.write("max_steps_without_improvement: %d\n" % (2 if cbad else 3))
+			f.write("max_periods_without_improvement: %d\n" % (2 if cbad else 3))
 			f.write("min_iters_per_period: %d\n" % 10000)
 			f.write("min_iters_per_period: %d\n" % 2000)
 			f.write("min_iters_per_period: %d\n" % 2000)
 			f.write("min_lr: %f\n" % 1e-6)
 			f.write("max_iter: %d\n" % 200000)
+			f.write("iter_size: %d\n" % iter_size)
 			f.write("max_nonfinite_test_loss: %d\n" % 1)
 			f.write("clip_gradients: %f\n" % 10.)
 
 			f.write("test_iter: %d\n" % lmdb_num_entries(sources_label_val.values()[0][0]))
-			f.write("test_interval: %d\n" % (lmdb_num_entries(sources_label_train.values()[0][0]) / (2 * train_batch_size)))
-			f.write("snapshot: %d\n" % (lmdb_num_entries(sources_label_train.values()[0][0]) / (2 * train_batch_size)))
-			f.write("momentum: %f\n" % 0.75)
+
+			test_interval = min(20000, lmdb_num_entries(sources_label_train.values()[0][0])) / (2 * train_batch_size)
+			f.write("test_interval: %d\n" % test_interval)
+			f.write("snapshot: %d\n" % test_interval)
+			f.write("momentum: %f\n" % 0.90)
 			f.write("weight_decay: %f\n" % 0.0005)
 
 			f.write("display: %d\n" % 100)
