@@ -49,5 +49,9 @@ if __name__ == "__main__":
 
         output_paths.append(new_paths)
 
+    try:
+        os.makedirs(os.path.dirname(output_paths_path))
+    except:
+        pass
     with open(output_paths_path, 'w') as f:
         json.dump(output_paths, f)

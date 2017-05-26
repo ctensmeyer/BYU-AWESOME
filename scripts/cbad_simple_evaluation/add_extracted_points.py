@@ -2,7 +2,7 @@ import sys
 import cv2
 import numpy as np
 import os
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import json
 from copy import deepcopy
 import time
@@ -80,10 +80,13 @@ if __name__ == "__main__":
     input_paths_path = sys.argv[1]
     output_paths_path = sys.argv[2]
     output_txt_folder_path = sys.argv[3]
+    evaluation_type = sys.argv[4] if len(sys.argv) > 4 else None
 
     with open(input_paths_path) as f:
         input_paths = json.load(f)
 
+    if evaluation_type is not None:
+        input_paths = [i for i in input_paths if i['train_type']==evaluation_type]
 
     output_paths = []
     start = time.time()
