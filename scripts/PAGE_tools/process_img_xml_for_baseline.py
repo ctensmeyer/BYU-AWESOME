@@ -67,6 +67,7 @@ def handle_single_image(xml_path, img_path, output_directory, use_baseline=True)
             raise Exception("Could not write file")
 
     cv2.imwrite(output_file, region_data)
+    return output_file
 
 def find_best_xml(list_of_files, filename):
 
@@ -89,6 +90,9 @@ def find_best_xml(list_of_files, filename):
 
 
 def process_dir(xml_directory, img_directory, output_directory, use_baseline=True):
+
+    result_paths = []
+
     xml_filename_to_fullpath = defaultdict(list)
     for root, sub_folders, files in os.walk(xml_directory):
         for f in files:
@@ -143,7 +147,7 @@ def process_dir(xml_directory, img_directory, output_directory, use_baseline=Tru
         for xml_path in find_best_xml(xml_paths, filename):
             xml_path = os.path.join(xml_path, filename+".xml")
             try:
-                handle_single_image(xml_path, img_path, this_output_directory, use_baseline)
+                output_file_path = handle_single_image(xml_path, img_path, this_output_directory, use_baseline)
                 success = True
                 break
             except KeyboardInterrupt:
@@ -157,7 +161,13 @@ def process_dir(xml_directory, img_directory, output_directory, use_baseline=Tru
             print "".join(["*"]*len(out_str))
             print filename, "Failed"
             print "".join(["*"]*len(out_str))
-
+        else:
+            result_paths.append({
+                "gt_xml_path": xml_path,
+                "gt_pixel_img_path": output_file_path,
+                "original_img_path": img_path
+            })
+    return result_paths
 
 if __name__ == "__main__":
     xml_directory = sys.argv[1]
@@ -169,4 +179,4 @@ if __name__ == "__main__":
     if region_setting is not None:
         use_baseline = False
 
-    process_dir(xml_directory, img_directory, output_directory, use_baseline=use_baseline)
+    result_paths = process_dir(xml_directory, img_directory, output_directory, use_baseline=use_baseline)
