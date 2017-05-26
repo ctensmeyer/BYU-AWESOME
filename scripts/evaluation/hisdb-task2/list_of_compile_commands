@@ -25,6 +25,9 @@ From scripts in FSL
 python scripts/PAGE_tools/process_cbad.py ../data/cbad/Baseline_Competition_Simple_Documents ../data/cbad/Baseline_Competition_Simple_Documents_pixels_2/ ../evaluation_data/cbad_simple_general/paths.json
 python scripts/PAGE_tools/add_gt_baseline_points_path_ours.py ../evaluation_data/cbad_simple_general/paths.json ../evaluation_data/cbad_simple_general/paths_2.json ../evaluation_data/cbad_simple_general/baseline_pts
 python scripts/evaluation/hisdb-task2/add_results_to_path_cbad.py ../results/cbad_simple_base_weights_round_weighted_1_3 ../evaluation_data/cbad_simple_general/paths_2.json ../evaluation_data/networks/cbad_simple_base_weights_round_weighted_1_3/paths_3.json
+python scripts/cbad_simple_evaluation/add_extracted_points.py ../evaluation_data/networks/cbad_simple_base_weights_round_weighted_1_3/paths_3.json ../evaluation_data/networks/cbad_simple_base_weights_round_weighted_1_3/paths_4.json ../evaluation_data/networks/cbad_simple_base_weights_round_weighted_1_3/pred_baseline_pts test
+python scripts/evaluation/hisdb-task2/compile_results_lst.py ../evaluation_data/networks/cbad_simple_base_weights_round_weighted_1_3/paths_4.json test ../evaluation_data/networks/cbad_simple_base_weights_round_weighted_1_3/pred.lst ../evaluation_data/networks/cbad_simple_base_weights_round_weighted_1_3/gt.lst
 
-python scripts/cbad_simple_evaluation/add_extracted_points.py ../evaluation_data/cbad_simple_general/paths_3.json data/cbad/Baseline_Competition_Simple_Documents_pixels_2/paths_4.json data/cbad/Baseline_Competition_Simple_Documents_pixels_2/pred_baseline_pts
-python scripts/cbad_simple_evaluation/add_extracted_points.py data/cbad/Baseline_Competition_Simple_Documents_pixels_2/paths_3.json data/cbad/Baseline_Competition_Simple_Documents_pixels_2/paths_4.json data/cbad/Baseline_Competition_Simple_Documents_pixels_2/pred_baseline_pts test
+cd scripts/evaluation/hisdb-task2/
+
+java -jar built_jars/baseline_evaluator.jar ../../../../evaluation_data/networks/cbad_simple_base_weights_round_weighted_1_3/gt.lst ../../../../evaluation_data/networks/cbad_simple_base_weights_round_weighted_1_3/pred.lst -no_s
