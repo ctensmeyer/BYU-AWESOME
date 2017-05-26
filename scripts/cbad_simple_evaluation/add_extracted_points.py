@@ -68,6 +68,12 @@ def pred_to_pts(color_img):
     return baselines
 
 def write_baseline_pts(baselines, filename):
+
+    try:
+        os.makedirs(os.path.dirname(filename))
+    except:
+        pass
+
     with open(filename, 'w') as f:
         for baseline in baselines:
             baseline_txt = []
